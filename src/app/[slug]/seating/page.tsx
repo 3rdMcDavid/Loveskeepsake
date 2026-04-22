@@ -71,7 +71,9 @@ export default async function SeatingPage({ params }: Props) {
     .order('full_name')
 
   const guestNames = (guests ?? []).map((g: { full_name: string }) => g.full_name).filter(Boolean)
-  const coupleNames = `${wedding.partner1_name} & ${wedding.partner2_name}`
+  const coupleNames = wedding.partner2_name
+    ? `${wedding.partner1_name} & ${wedding.partner2_name}`
+    : (wedding.partner1_name ?? 'Your Wedding')
 
   return (
     <SeatingPlanner

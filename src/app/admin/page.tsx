@@ -12,7 +12,7 @@ export default async function AdminDashboard() {
   const { data: weddings } = await supabase
     .from('weddings')
     .select('*')
-    .order('wedding_date', { ascending: false })
+    .order('created_at', { ascending: false })
 
   return (
     <div className="p-8">
@@ -42,12 +42,16 @@ export default async function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="font-medium text-stone-800">
-                    {wedding.partner1_name} &amp; {wedding.partner2_name}
+                    {wedding.partner2_name
+                      ? `${wedding.partner1_name} & ${wedding.partner2_name}`
+                      : wedding.partner1_name}
                   </h2>
                   <p className="text-sm text-stone-400 mt-0.5">
-                    {new Date(wedding.wedding_date).toLocaleDateString('en-US', {
-                      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-                    })}
+                    {wedding.wedding_date
+                      ? new Date(wedding.wedding_date).toLocaleDateString('en-US', {
+                          year: 'numeric', month: 'long', day: 'numeric'
+                        })
+                      : 'Date not yet set'}
                   </p>
                 </div>
                 <div className="text-right">

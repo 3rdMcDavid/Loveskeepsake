@@ -2,8 +2,8 @@ export type Wedding = {
   id: string
   slug: string
   partner1_name: string
-  partner2_name: string
-  wedding_date: string
+  partner2_name: string | null
+  wedding_date: string | null
   venue_name: string | null
   venue_address: string | null
   dress_code: string | null

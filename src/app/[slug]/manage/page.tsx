@@ -37,10 +37,14 @@ export default async function ManagePage({ params, searchParams }: Props) {
   const state = (checklistRow?.state ?? {}) as Record<string, Record<string, boolean>>
   const customConfig = (checklistRow?.custom_config ?? {}) as CustomConfig
 
-  const coupleNames = `${wedding.partner1_name} & ${wedding.partner2_name}`
-  const weddingDate = new Date(wedding.wedding_date).toLocaleDateString('en-US', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-  })
+  const coupleNames = wedding.partner2_name
+    ? `${wedding.partner1_name} & ${wedding.partner2_name}`
+    : (wedding.partner1_name ?? 'Your Wedding')
+  const weddingDate = wedding.wedding_date
+    ? new Date(wedding.wedding_date).toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+      })
+    : 'Date not yet set'
 
   if (activeSection === undefined) {
     return (

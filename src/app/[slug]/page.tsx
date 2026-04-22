@@ -16,9 +16,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .single()
 
   if (!wedding) return { title: 'LovesKeepsake' }
-  return {
-    title: `${wedding.partner1_name} & ${wedding.partner2_name} — LovesKeepsake`,
-  }
+  const name = wedding.partner2_name
+    ? `${wedding.partner1_name} & ${wedding.partner2_name}`
+    : (wedding.partner1_name ?? 'Your Wedding')
+  return { title: `${name} — LoveKeepsake` }
 }
 
 export default async function CouplePage({ params }: Props) {
@@ -46,10 +47,11 @@ export default async function CouplePage({ params }: Props) {
       .order('category'),
   ])
 
-  const weddingDate = new Date(wedding.wedding_date)
-  const formattedDate = weddingDate.toLocaleDateString('en-US', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-  })
+  const formattedDate = wedding.wedding_date
+    ? new Date(wedding.wedding_date).toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+      })
+    : null
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -57,9 +59,11 @@ export default async function CouplePage({ params }: Props) {
       <div className="bg-white border-b border-stone-100 px-6 py-16 text-center">
         <p className="text-xs uppercase tracking-widest text-rose-400 mb-3">You&apos;re invited</p>
         <h1 className="text-4xl font-serif text-stone-800">
-          {wedding.partner1_name} &amp; {wedding.partner2_name}
+          {wedding.partner2_name
+            ? `${wedding.partner1_name} & ${wedding.partner2_name}`
+            : wedding.partner1_name}
         </h1>
-        <p className="text-stone-500 mt-3">{formattedDate}</p>
+        {formattedDate && <p className="text-stone-500 mt-3">{formattedDate}</p>}
         {wedding.venue_name && (
           <p className="text-stone-500 mt-1">{wedding.venue_name}</p>
         )}

@@ -55,7 +55,7 @@ export async function resendInvite(weddingId: string, coupleEmail: string, slug:
     email: coupleEmail,
     options: {
       shouldCreateUser: true,
-      emailRedirectTo: `${siteUrl}/auth/callback?next=/${slug}/manage`,
+      emailRedirectTo: `${siteUrl}/auth/callback?next=/${slug}/welcome`,
     },
   })
 

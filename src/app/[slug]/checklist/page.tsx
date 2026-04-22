@@ -26,10 +26,14 @@ export default async function PublicChecklistPage({ params }: Props) {
   const state = (row?.state ?? {}) as Record<string, Record<string, boolean>>
   const customConfig = (row?.custom_config ?? {}) as CustomConfig
 
-  const coupleNames = `${wedding.partner1_name} & ${wedding.partner2_name}`
-  const weddingDate = new Date(wedding.wedding_date).toLocaleDateString('en-US', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-  })
+  const coupleNames = wedding.partner2_name
+    ? `${wedding.partner1_name} & ${wedding.partner2_name}`
+    : (wedding.partner1_name ?? 'Your Wedding')
+  const weddingDate = wedding.wedding_date
+    ? new Date(wedding.wedding_date).toLocaleDateString('en-US', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+      })
+    : 'Date not yet set'
 
   return (
     <div className="min-h-screen" style={{ background: '#f5f0eb' }}>

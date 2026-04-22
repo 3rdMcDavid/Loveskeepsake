@@ -2,14 +2,21 @@ import CoupleSignIn from './CoupleSignIn'
 
 type Props = { params: Promise<{ slug: string }> }
 
+const CF = "var(--font-cormorant), 'Georgia', serif"
+
 export default async function CoupleSignInPage({ params }: Props) {
   const { slug } = await params
   return (
-    <div className="min-h-screen flex items-center justify-center bg-stone-50">
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#f5f0eb' }}>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-serif text-stone-800">LovesKeepsake</h1>
-          <p className="text-stone-500 mt-1 text-sm">Couple portal</p>
+          <p className="text-xs tracking-widest uppercase text-stone-400 mb-2">LoveKeepsake</p>
+          <h1 className="text-3xl font-light tracking-wide text-stone-800" style={{ fontFamily: CF }}>
+            Welcome Back
+          </h1>
+          <p className="text-sm italic mt-2" style={{ color: '#c4956a', fontFamily: "'Georgia', serif" }}>
+            Sign in to your wedding dashboard
+          </p>
         </div>
         <CoupleSignIn slug={slug} />
       </div>

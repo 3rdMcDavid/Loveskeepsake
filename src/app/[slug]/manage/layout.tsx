@@ -51,7 +51,9 @@ export default async function ManageLayout({
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
             <span className="font-serif text-stone-800">
-              {wedding.partner1_name} &amp; {wedding.partner2_name}
+              {wedding.partner2_name
+              ? `${wedding.partner1_name} & ${wedding.partner2_name}`
+              : wedding.partner1_name}
             </span>
             <span className="ml-2 text-xs text-stone-400">Planning</span>
           </div>
