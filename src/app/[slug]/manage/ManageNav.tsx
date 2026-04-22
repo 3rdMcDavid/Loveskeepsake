@@ -24,6 +24,14 @@ export function ManageNav({ slug }: { slug: string }) {
         Dashboard
       </Link>
 
+      <Link
+        href={`/${slug}/manage/settings`}
+        className="px-3 py-1.5 rounded-md text-sm whitespace-nowrap transition-colors flex items-center gap-1.5 text-stone-500 hover:text-stone-800 hover:bg-stone-100"
+      >
+        <span className="text-xs">⚙️</span>
+        Details
+      </Link>
+
       <span className="flex-shrink-0 w-px bg-stone-200 mx-1 self-stretch" />
 
       {SECTIONS.map((sec, i) => {
@@ -52,16 +60,6 @@ export function ManageNav({ slug }: { slug: string }) {
       >
         <span className="text-xs">🪑</span>
         Seating
-      </Link>
-
-      <span className="flex-shrink-0 w-px bg-stone-200 mx-1 self-stretch" />
-
-      <Link
-        href={`/${slug}/manage/settings`}
-        className="px-3 py-1.5 rounded-md text-sm whitespace-nowrap transition-colors flex items-center gap-1.5 text-stone-500 hover:text-stone-800 hover:bg-stone-100"
-      >
-        <span className="text-xs">⚙️</span>
-        Details
       </Link>
     </nav>
   )
