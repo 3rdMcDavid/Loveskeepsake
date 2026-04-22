@@ -43,7 +43,7 @@ export default async function ManageLayout({
     const { createClient: cc } = await import('@/lib/supabase/server')
     const sb = await cc()
     await sb.auth.signOut()
-    redirect(`/${slug}`)
+    redirect(`/${slug}/sign-in`)
   }
 
   return (
