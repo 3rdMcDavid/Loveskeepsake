@@ -10,7 +10,8 @@ export function ManageNav({ slug }: { slug: string }) {
   const section = searchParams.get('section')
 
   const isSettings = pathname === `/${slug}/manage/settings`
-  const isDashboard = section === null && !isSettings
+  const isCamera = pathname === `/${slug}/manage/camera`
+  const isDashboard = section === null && !isSettings && !isCamera
 
   const linkCls = (active: boolean) =>
     `px-3 py-1.5 rounded-md text-sm whitespace-nowrap transition-colors flex items-center gap-1.5 ${
@@ -45,6 +46,11 @@ export function ManageNav({ slug }: { slug: string }) {
       ))}
 
       <span className="flex-shrink-0 w-px bg-stone-200 mx-1 self-stretch" />
+
+      <Link href={`/${slug}/manage/camera`} className={linkCls(isCamera)}>
+        <span className="text-xs">📷</span>
+        Camera
+      </Link>
 
       <Link href={`/${slug}/seating`} className={linkCls(false)}>
         <span className="text-xs">🪑</span>

@@ -22,8 +22,17 @@ export async function OverviewDashboard({
   const overall = computeProgress(state, customConfig)
   const cf = "var(--font-cormorant), 'Georgia', serif"
 
-  // Fetch seating stats
   const supabase = await createClient()
+
+  // Fetch camera stats
+  const { data: cameras } = await supabase
+    .from('guest_cameras')
+    .select('shots_used')
+    .eq('wedding_id', weddingId)
+  const totalPhotos = cameras?.reduce((s, c) => s + (c.shots_used ?? 0), 0) ?? 0
+  const uniqueDevices = cameras?.length ?? 0
+
+  // Fetch seating stats
   const { data: plan } = await supabase
     .from('seating_plans')
     .select('id')
@@ -145,6 +154,50 @@ export async function OverviewDashboard({
             </Link>
           )
         })}
+
+        {/* Guest Camera card */}
+        <Link
+          href={`/${slug}/manage/camera`}
+          className="group block bg-white p-4 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5"
+        >
+          <div className="flex items-start justify-between mb-3">
+            <span className="text-2xl">📷</span>
+            <span
+              className="text-xs px-2 py-0.5 rounded-full tracking-wide"
+              style={
+                totalPhotos === 0
+                  ? { background: '#f5f0eb', color: '#b8a99a' }
+                  : { background: '#e8d5c0', color: '#8a7568' }
+              }
+            >
+              {totalPhotos === 0 ? 'No photos yet' : `${totalPhotos} photo${totalPhotos !== 1 ? 's' : ''}`}
+            </span>
+          </div>
+          <div
+            className="text-sm font-light leading-tight text-stone-800 group-hover:text-stone-900"
+            style={{ fontFamily: cf }}
+          >
+            Guest Camera
+          </div>
+          <div
+            className="text-xs italic mt-0.5"
+            style={{ color: '#c4956a', fontFamily: "'Georgia', serif" }}
+          >
+            disposable camera experience
+          </div>
+          <div className="mt-3 h-0.5 bg-stone-100 rounded-full">
+            <div
+              className="h-0.5 rounded-full transition-all duration-500"
+              style={{
+                width: uniqueDevices > 0 ? `${Math.min(100, uniqueDevices * 5)}%` : '0%',
+                background: '#c4956a',
+              }}
+            />
+          </div>
+          <p className="text-xs text-stone-400 mt-1.5 tracking-wide">
+            {uniqueDevices === 0 ? 'No devices yet' : `${uniqueDevices} device${uniqueDevices !== 1 ? 's' : ''} scanned`}
+          </p>
+        </Link>
 
         {/* Seating Planner card */}
         <Link

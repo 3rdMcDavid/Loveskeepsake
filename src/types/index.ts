@@ -66,3 +66,20 @@ export type Photo = {
   device_token: string
   uploaded_at: string
 }
+
+export type GuestCamera = {
+  id: string
+  wedding_id: string
+  device_id: string
+  shots_used: number
+  created_at: string
+  last_shot_at: string | null
+}
+
+export type GuestPhoto = {
+  id: string
+  wedding_id: string
+  device_id: string
+  storage_path: string
+  uploaded_at: string
+}
