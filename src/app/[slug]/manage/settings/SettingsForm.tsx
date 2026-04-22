@@ -7,6 +7,7 @@ interface Props {
   weddingId: string
   slug: string
   initial: {
+    family_name: string | null
     partner1_name: string | null
     partner2_name: string | null
     wedding_date: string | null
@@ -41,9 +42,18 @@ export function SettingsForm({ weddingId, slug, initial }: Props) {
         <h2 className="text-xs tracking-widest uppercase text-stone-400 border-b border-stone-100 pb-2 mb-5">
           Your Names
         </h2>
+        <div className="mb-4">
+          <label className={labelCls}>Last name / Family name</label>
+          <input
+            name="family_name"
+            defaultValue={initial.family_name ?? ''}
+            placeholder="e.g. McCarter"
+            className={inputCls}
+          />
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className={labelCls}>Partner 1 name</label>
+            <label className={labelCls}>Partner 1 first name</label>
             <input
               name="partner1_name"
               defaultValue={initial.partner1_name ?? ''}
@@ -52,7 +62,7 @@ export function SettingsForm({ weddingId, slug, initial }: Props) {
             />
           </div>
           <div>
-            <label className={labelCls}>Partner 2 name</label>
+            <label className={labelCls}>Partner 2 first name</label>
             <input
               name="partner2_name"
               defaultValue={initial.partner2_name ?? ''}
@@ -62,7 +72,7 @@ export function SettingsForm({ weddingId, slug, initial }: Props) {
           </div>
         </div>
         <p className="text-xs text-stone-400 mt-2">
-          These appear throughout your planning dashboard and on your guest portal.
+          Displays as "David &amp; Ashley McCarter" once all three are filled in.
         </p>
       </div>
 

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { ManageNav } from './ManageNav'
+import { coupleDisplay } from '@/lib/coupleDisplay'
 
 export default async function ManageLayout({
   children,
@@ -18,7 +19,7 @@ export default async function ManageLayout({
 
   const { data: wedding } = await supabase
     .from('weddings')
-    .select('id, partner1_name, partner2_name, couple_email, couple_user_id')
+    .select('id, family_name, partner1_name, partner2_name, couple_email, couple_user_id')
     .eq('slug', slug)
     .single()
 
@@ -51,9 +52,7 @@ export default async function ManageLayout({
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
             <span className="font-serif text-stone-800">
-              {wedding.partner2_name
-              ? `${wedding.partner1_name} & ${wedding.partner2_name}`
-              : wedding.partner1_name}
+              {coupleDisplay(wedding.partner1_name, wedding.partner2_name, wedding.family_name)}
             </span>
             <span className="ml-2 text-xs text-stone-400">Planning</span>
           </div>

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import GuestSeatLookup from '@/components/portal/GuestSeatLookup'
 import type { Metadata } from 'next'
 import type { TimelineEvent, Vendor } from '@/types'
+import { coupleDisplay } from '@/lib/coupleDisplay'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -11,15 +12,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = await createClient()
   const { data: wedding } = await supabase
     .from('weddings')
-    .select('partner1_name, partner2_name')
+    .select('family_name, partner1_name, partner2_name')
     .eq('slug', slug)
     .single()
 
   if (!wedding) return { title: 'LovesKeepsake' }
-  const name = wedding.partner2_name
-    ? `${wedding.partner1_name} & ${wedding.partner2_name}`
-    : (wedding.partner1_name ?? 'Your Wedding')
-  return { title: `${name} — LoveKeepsake` }
+  return { title: `${coupleDisplay(wedding.partner1_name, wedding.partner2_name, wedding.family_name)} — LoveKeepsake` }
 }
 
 export default async function CouplePage({ params }: Props) {
@@ -59,9 +57,7 @@ export default async function CouplePage({ params }: Props) {
       <div className="bg-white border-b border-stone-100 px-6 py-16 text-center">
         <p className="text-xs uppercase tracking-widest text-rose-400 mb-3">You&apos;re invited</p>
         <h1 className="text-4xl font-serif text-stone-800">
-          {wedding.partner2_name
-            ? `${wedding.partner1_name} & ${wedding.partner2_name}`
-            : wedding.partner1_name}
+          {coupleDisplay(wedding.partner1_name, wedding.partner2_name, wedding.family_name)}
         </h1>
         {formattedDate && <p className="text-stone-500 mt-3">{formattedDate}</p>}
         {wedding.venue_name && (

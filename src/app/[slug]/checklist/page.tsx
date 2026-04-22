@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { ChecklistClient } from '../manage/checklist/ChecklistClient'
 import type { CustomConfig } from '../manage/checklist/checklistData'
+import { coupleDisplay } from '@/lib/coupleDisplay'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -11,7 +12,7 @@ export default async function PublicChecklistPage({ params }: Props) {
 
   const { data: wedding } = await supabase
     .from('weddings')
-    .select('id, partner1_name, partner2_name, wedding_date')
+    .select('id, family_name, partner1_name, partner2_name, wedding_date')
     .eq('slug', slug)
     .single()
 
@@ -26,9 +27,7 @@ export default async function PublicChecklistPage({ params }: Props) {
   const state = (row?.state ?? {}) as Record<string, Record<string, boolean>>
   const customConfig = (row?.custom_config ?? {}) as CustomConfig
 
-  const coupleNames = wedding.partner2_name
-    ? `${wedding.partner1_name} & ${wedding.partner2_name}`
-    : (wedding.partner1_name ?? 'Your Wedding')
+  const coupleNames = coupleDisplay(wedding.partner1_name, wedding.partner2_name, wedding.family_name)
   const weddingDate = wedding.wedding_date
     ? new Date(wedding.wedding_date).toLocaleDateString('en-US', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',

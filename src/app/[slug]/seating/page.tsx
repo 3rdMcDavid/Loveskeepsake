@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import { SeatingPlanner } from './SeatingPlanner'
 import type { SeatingTableData, Seat } from './types'
+import { coupleDisplay } from '@/lib/coupleDisplay'
 
 type Props = { params: Promise<{ slug: string }> }
 
@@ -14,7 +15,7 @@ export default async function SeatingPage({ params }: Props) {
 
   const { data: wedding } = await supabase
     .from('weddings')
-    .select('id, partner1_name, partner2_name, couple_email, couple_user_id')
+    .select('id, family_name, partner1_name, partner2_name, couple_email, couple_user_id')
     .eq('slug', slug)
     .single()
 
@@ -71,9 +72,7 @@ export default async function SeatingPage({ params }: Props) {
     .order('full_name')
 
   const guestNames = (guests ?? []).map((g: { full_name: string }) => g.full_name).filter(Boolean)
-  const coupleNames = wedding.partner2_name
-    ? `${wedding.partner1_name} & ${wedding.partner2_name}`
-    : (wedding.partner1_name ?? 'Your Wedding')
+  const coupleNames = coupleDisplay(wedding.partner1_name, wedding.partner2_name, wedding.family_name)
 
   return (
     <SeatingPlanner

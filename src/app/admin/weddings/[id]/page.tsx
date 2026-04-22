@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { coupleDisplay } from '@/lib/coupleDisplay'
 import ResendInviteButton from './ResendInviteButton'
 import EditWeddingForm from './EditWeddingForm'
 import DeleteWeddingButton from './DeleteWeddingButton'
@@ -37,9 +38,7 @@ export default async function AdminWeddingPage({ params }: Props) {
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="text-2xl font-serif text-stone-800">
-            {wedding.partner2_name
-              ? `${wedding.partner1_name} & ${wedding.partner2_name}`
-              : wedding.partner1_name}
+            {coupleDisplay(wedding.partner1_name, wedding.partner2_name, wedding.family_name)}
           </h1>
           <p className="text-stone-400 text-sm mt-1">{formattedDate}</p>
         </div>
@@ -89,9 +88,7 @@ export default async function AdminWeddingPage({ params }: Props) {
           <p className="text-sm text-stone-500">Permanently removes this wedding and all associated data.</p>
           <DeleteWeddingButton
             weddingId={wedding.id}
-            weddingName={wedding.partner2_name
-              ? `${wedding.partner1_name} & ${wedding.partner2_name}`
-              : (wedding.partner1_name ?? '')}
+            weddingName={coupleDisplay(wedding.partner1_name, wedding.partner2_name, wedding.family_name)}
           />
         </div>
       </div>

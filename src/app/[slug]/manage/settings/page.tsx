@@ -12,7 +12,7 @@ export default async function SettingsPage({ params }: Props) {
 
   const { data: wedding } = await supabase
     .from('weddings')
-    .select('id, partner1_name, partner2_name, wedding_date, venue_name, venue_address, dress_code, notes')
+    .select('id, family_name, partner1_name, partner2_name, wedding_date, venue_name, venue_address, dress_code, notes')
     .eq('slug', slug)
     .single()
 
@@ -33,6 +33,7 @@ export default async function SettingsPage({ params }: Props) {
         weddingId={wedding.id}
         slug={slug}
         initial={{
+          family_name: wedding.family_name,
           partner1_name: wedding.partner1_name,
           partner2_name: wedding.partner2_name,
           wedding_date: wedding.wedding_date,

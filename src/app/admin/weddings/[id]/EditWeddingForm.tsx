@@ -48,7 +48,7 @@ export default function EditWeddingForm({ wedding }: { wedding: Wedding }) {
                   <label className="block text-sm font-medium text-stone-700 mb-1.5">Partner 1</label>
                   <input
                     name="partner1_name"
-                    defaultValue={wedding.partner1_name}
+                    defaultValue={wedding.partner1_name ?? ''}
                     required
                     className="w-full px-3.5 py-2.5 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
                   />

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import type { Wedding } from '@/types'
+import { coupleDisplay } from '@/lib/coupleDisplay'
 
 export default async function AdminDashboard() {
   const supabase = await createClient()
@@ -42,9 +43,7 @@ export default async function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="font-medium text-stone-800">
-                    {wedding.partner2_name
-                      ? `${wedding.partner1_name} & ${wedding.partner2_name}`
-                      : wedding.partner1_name}
+                    {coupleDisplay(wedding.partner1_name, wedding.partner2_name, wedding.family_name)}
                   </h2>
                   <p className="text-sm text-stone-400 mt-0.5">
                     {wedding.wedding_date

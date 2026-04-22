@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { SECTIONS, type CustomConfig, type SectionConfig } from './checklist/checklistData'
+import { coupleDisplay } from '@/lib/coupleDisplay'
 import { OverviewDashboard } from './OverviewDashboard'
 import { SectionView } from './checklist/SectionView'
 
@@ -22,7 +23,7 @@ export default async function ManagePage({ params, searchParams }: Props) {
 
   const { data: wedding } = await supabase
     .from('weddings')
-    .select('id, partner1_name, partner2_name, wedding_date')
+    .select('id, family_name, partner1_name, partner2_name, wedding_date')
     .eq('slug', slug)
     .single()
 
@@ -37,9 +38,7 @@ export default async function ManagePage({ params, searchParams }: Props) {
   const state = (checklistRow?.state ?? {}) as Record<string, Record<string, boolean>>
   const customConfig = (checklistRow?.custom_config ?? {}) as CustomConfig
 
-  const coupleNames = wedding.partner2_name
-    ? `${wedding.partner1_name} & ${wedding.partner2_name}`
-    : (wedding.partner1_name ?? 'Your Wedding')
+  const coupleNames = coupleDisplay(wedding.partner1_name, wedding.partner2_name, wedding.family_name)
   const weddingDate = wedding.wedding_date
     ? new Date(wedding.wedding_date).toLocaleDateString('en-US', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
