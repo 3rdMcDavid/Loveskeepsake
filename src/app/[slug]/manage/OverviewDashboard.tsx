@@ -2,6 +2,10 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { SECTIONS, sectionProgress, computeProgress, type CustomConfig } from './checklist/checklistData'
 
+interface VenueData { slots?: { name: string }[] }
+interface AttireData { partner1?: string; partner2?: string }
+interface RehearsalData { venueName?: string; date?: string }
+
 interface Props {
   state: Record<string, Record<string, boolean>>
   customConfig: CustomConfig
@@ -9,6 +13,10 @@ interface Props {
   coupleNames: string
   weddingDate: string
   weddingId: string
+  venueData: VenueData | null
+  attireData: AttireData | null
+  rehearsalData: RehearsalData | null
+  budgetCeiling: number | string | null
 }
 
 const cf = "var(--font-cormorant), 'Georgia', serif"
@@ -20,23 +28,21 @@ export async function OverviewDashboard({
   coupleNames,
   weddingDate,
   weddingId,
+  venueData,
+  attireData,
+  rehearsalData,
+  budgetCeiling: budgetCeilingRaw,
 }: Props) {
   const overall = computeProgress(state, customConfig)
   const supabase = await createClient()
 
-  // Fetch all custom section data in parallel
+  // Fetch remaining data in parallel (wedding fields already passed as props)
   const [
-    { data: weddingExtra },
     { data: expenseItems },
     { data: guestRows },
     { data: cameras },
     { data: seatingPlan },
   ] = await Promise.all([
-    supabase
-      .from('weddings')
-      .select('venue_data, attire_data, rehearsal_data, budget_ceiling')
-      .eq('id', weddingId)
-      .single(),
     supabase
       .from('expense_items')
       .select('amount')
@@ -53,23 +59,20 @@ export async function OverviewDashboard({
       .from('seating_plans')
       .select('id')
       .eq('wedding_id', weddingId)
-      .single(),
+      .maybeSingle(),
   ])
 
   // Venues
-  const venueData = weddingExtra?.venue_data as { slots?: { name: string }[] } | null
   const venuesFilledCount = (venueData?.slots ?? []).filter(s => s.name?.trim()).length
 
   // Attire
-  const attireData = weddingExtra?.attire_data as { partner1?: string; partner2?: string } | null
   const attireFilled = !!(attireData?.partner1?.trim() || attireData?.partner2?.trim())
 
   // Expenses
   const expenseTotal = (expenseItems ?? []).reduce((s, e) => s + Number(e.amount), 0)
-  const budgetCeiling = weddingExtra?.budget_ceiling ? Number(weddingExtra.budget_ceiling) : 0
+  const budgetCeiling = budgetCeilingRaw ? Number(budgetCeilingRaw) : 0
 
   // Rehearsal
-  const rehearsalData = weddingExtra?.rehearsal_data as { venueName?: string; date?: string } | null
   const rehearsalFilled = !!(rehearsalData?.venueName?.trim() || rehearsalData?.date)
 
   // Guest list

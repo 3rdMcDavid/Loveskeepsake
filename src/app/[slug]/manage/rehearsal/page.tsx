@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { getWeddingBySlug } from '@/lib/supabase/queries'
 import { notFound } from 'next/navigation'
 import { RehearsalEditor } from './RehearsalEditor'
 import type { Metadata } from 'next'
@@ -9,14 +9,7 @@ export const metadata: Metadata = { title: 'Rehearsal' }
 
 export default async function RehearsalPage({ params }: Props) {
   const { slug } = await params
-  const supabase = await createClient()
-
-  const { data: wedding } = await supabase
-    .from('weddings')
-    .select('id, rehearsal_data')
-    .eq('slug', slug)
-    .single()
-
+  const wedding = await getWeddingBySlug(slug)
   if (!wedding) notFound()
 
   return (

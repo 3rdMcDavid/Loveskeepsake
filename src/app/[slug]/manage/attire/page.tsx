@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { getWeddingBySlug } from '@/lib/supabase/queries'
 import { notFound } from 'next/navigation'
 import { AttireEditor } from './AttireEditor'
 import type { Metadata } from 'next'
@@ -9,14 +9,7 @@ export const metadata: Metadata = { title: 'Attire' }
 
 export default async function AttirePage({ params }: Props) {
   const { slug } = await params
-  const supabase = await createClient()
-
-  const { data: wedding } = await supabase
-    .from('weddings')
-    .select('id, attire_data, partner1_name, partner2_name')
-    .eq('slug', slug)
-    .single()
-
+  const wedding = await getWeddingBySlug(slug)
   if (!wedding) notFound()
 
   return (

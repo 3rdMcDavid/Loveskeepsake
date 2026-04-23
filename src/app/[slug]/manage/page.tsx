@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getWeddingBySlug } from '@/lib/supabase/queries'
 import { notFound, redirect } from 'next/navigation'
 import { SECTIONS, type CustomConfig, type SectionConfig } from './checklist/checklistData'
 import { coupleDisplay } from '@/lib/coupleDisplay'
@@ -19,28 +20,22 @@ export default async function ManagePage({ params, searchParams }: Props) {
       ? Number(section)
       : undefined
 
-  // If the section index corresponds to a custom route or hidden section, redirect
   if (activeSection !== undefined) {
     const sec = SECTIONS[activeSection]
     if (sec.customRoute) redirect(`/${slug}/manage/${sec.customRoute}`)
     if (sec.hidden) redirect(`/${slug}/manage`)
   }
 
-  const supabase = await createClient()
-
-  const { data: wedding } = await supabase
-    .from('weddings')
-    .select('id, family_name, partner1_name, partner2_name, wedding_date')
-    .eq('slug', slug)
-    .single()
-
+  // getWeddingBySlug is memoized — the layout already called it, so this is free
+  const wedding = await getWeddingBySlug(slug)
   if (!wedding) notFound()
 
+  const supabase = await createClient()
   const { data: checklistRow } = await supabase
     .from('checklist_states')
     .select('state, custom_config')
     .eq('wedding_id', wedding.id)
-    .single()
+    .maybeSingle()
 
   const state = (checklistRow?.state ?? {}) as Record<string, Record<string, boolean>>
   const customConfig = (checklistRow?.custom_config ?? {}) as CustomConfig
@@ -61,6 +56,10 @@ export default async function ManagePage({ params, searchParams }: Props) {
         coupleNames={coupleNames}
         weddingDate={weddingDate}
         weddingId={wedding.id}
+        venueData={wedding.venue_data as never}
+        attireData={wedding.attire_data as never}
+        rehearsalData={wedding.rehearsal_data as never}
+        budgetCeiling={wedding.budget_ceiling}
       />
     )
   }

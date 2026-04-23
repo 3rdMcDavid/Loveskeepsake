@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getCurrentUser, getWeddingBySlug } from '@/lib/supabase/queries'
 import { redirect, notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { ManageNav } from './ManageNav'
@@ -12,17 +13,13 @@ export default async function ManageLayout({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const supabase = await createClient()
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const [user, wedding] = await Promise.all([
+    getCurrentUser(),
+    getWeddingBySlug(slug),
+  ])
+
   if (!user) redirect(`/${slug}/sign-in`)
-
-  const { data: wedding } = await supabase
-    .from('weddings')
-    .select('id, family_name, partner1_name, partner2_name, couple_email, couple_user_id')
-    .eq('slug', slug)
-    .single()
-
   if (!wedding) notFound()
 
   const isCouple =
@@ -32,6 +29,7 @@ export default async function ManageLayout({
   if (!isCouple) redirect('/')
 
   if (!wedding.couple_user_id) {
+    const supabase = await createClient()
     await supabase
       .from('weddings')
       .update({ couple_user_id: user.id })

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { getWeddingBySlug } from '@/lib/supabase/queries'
 import { notFound } from 'next/navigation'
 import { GuestListEditor } from './GuestListEditor'
 import type { Metadata } from 'next'
@@ -9,14 +10,10 @@ export const metadata: Metadata = { title: 'Guest List' }
 
 export default async function GuestListPage({ params }: Props) {
   const { slug } = await params
-  const supabase = await createClient()
-
-  const { data: wedding } = await supabase
-    .from('weddings')
-    .select('id')
-    .eq('slug', slug)
-    .single()
-
+  const [wedding, supabase] = await Promise.all([
+    getWeddingBySlug(slug),
+    createClient(),
+  ])
   if (!wedding) notFound()
 
   const { data: guests } = await supabase
