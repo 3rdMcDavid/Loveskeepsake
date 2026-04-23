@@ -152,25 +152,25 @@ export function SeatingPlanner({ slug, initialTables, guestNames, coupleNames }:
   function handleSeatAssign() {
     if (!seatPopup) return
     const { tableId, seatIdx, name } = seatPopup
-    setTables(prev => prev.map(t => {
-      if (t.id !== tableId) return t
-      const seats = t.seats.map((s, i) => i === seatIdx ? { ...s, name: name.trim() } : s)
-      startTransition(async () => { await saveTable(slug, { ...t, seats }) })
-      return { ...t, seats }
-    }))
+    const target = tables.find(t => t.id === tableId)
+    if (!target) return
+    const seats = target.seats.map((s, i) => i === seatIdx ? { ...s, name: name.trim() } : s)
+    const updated = { ...target, seats }
+    setTables(prev => prev.map(t => t.id === tableId ? updated : t))
     setSeatPopup(null)
+    startTransition(() => saveTable(slug, updated))
   }
 
   function handleSeatClear() {
     if (!seatPopup) return
     const { tableId, seatIdx } = seatPopup
-    setTables(prev => prev.map(t => {
-      if (t.id !== tableId) return t
-      const seats = t.seats.map((s, i) => i === seatIdx ? { ...s, name: '' } : s)
-      startTransition(async () => { await saveTable(slug, { ...t, seats }) })
-      return { ...t, seats }
-    }))
+    const target = tables.find(t => t.id === tableId)
+    if (!target) return
+    const seats = target.seats.map((s, i) => i === seatIdx ? { ...s, name: '' } : s)
+    const updated = { ...target, seats }
+    setTables(prev => prev.map(t => t.id === tableId ? updated : t))
     setSeatPopup(null)
+    startTransition(() => saveTable(slug, updated))
   }
 
   function handleTableDragEnd(tableId: string, x: number, y: number) {
