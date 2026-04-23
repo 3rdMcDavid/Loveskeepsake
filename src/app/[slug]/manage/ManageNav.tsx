@@ -11,7 +11,13 @@ export function ManageNav({ slug }: { slug: string }) {
 
   const isSettings = pathname === `/${slug}/manage/settings`
   const isCamera = pathname === `/${slug}/manage/camera`
-  const isDashboard = section === null && !isSettings && !isCamera
+
+  const customRouteActive = SECTIONS.find(
+    s => s.customRoute && pathname === `/${slug}/manage/${s.customRoute}`,
+  )?.customRoute ?? null
+
+  const isDashboard =
+    section === null && !isSettings && !isCamera && customRouteActive === null
 
   const linkCls = (active: boolean) =>
     `px-3 py-1.5 rounded-md text-sm whitespace-nowrap transition-colors flex items-center gap-1.5 ${
@@ -34,16 +40,30 @@ export function ManageNav({ slug }: { slug: string }) {
         Details
       </Link>
 
-      {SECTIONS.map((sec, i) => (
-        <Link
-          key={i}
-          href={`/${slug}/manage?section=${i}`}
-          className={linkCls(section === String(i))}
-        >
-          <span className="text-xs">{sec.icon}</span>
-          {sec.tabLabel}
-        </Link>
-      ))}
+      {SECTIONS.map((sec, i) => {
+        if (sec.hidden) return null
+
+        if (sec.customRoute) {
+          const href = `/${slug}/manage/${sec.customRoute}`
+          return (
+            <Link key={i} href={href} className={linkCls(customRouteActive === sec.customRoute)}>
+              <span className="text-xs">{sec.icon}</span>
+              {sec.tabLabel}
+            </Link>
+          )
+        }
+
+        return (
+          <Link
+            key={i}
+            href={`/${slug}/manage?section=${i}`}
+            className={linkCls(section === String(i))}
+          >
+            <span className="text-xs">{sec.icon}</span>
+            {sec.tabLabel}
+          </Link>
+        )
+      })}
 
       <span className="flex-shrink-0 w-px bg-stone-200 mx-1 self-stretch" />
 

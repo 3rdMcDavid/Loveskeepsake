@@ -14,90 +14,39 @@ export interface ChecklistSection {
   icon: string
   tabLabel: string
   groups: ChecklistGroup[]
+  customRoute?: string  // points to /[slug]/manage/{customRoute}
+  hidden?: true         // omit from nav and progress entirely
 }
 
 export const SECTIONS: ChecklistSection[] = [
+  // ── index 0 ─────────────────────────────────────────────────────
   {
     title: 'Wedding Venues',
     script: 'Comparison',
     icon: '🏛️',
     tabLabel: 'Venues',
-    groups: [
-      {
-        label: 'Research',
-        items: [
-          { label: 'Shortlist 3–5 venues', sub: 'Based on guest count & style' },
-          { label: 'Book venue tours / site visits' },
-          { label: 'Compare pricing & inclusions' },
-          { label: 'Check date availability' },
-          { label: 'Review venue contract terms' },
-        ],
-      },
-      {
-        label: 'Confirm',
-        items: [
-          { label: 'Sign venue contract' },
-          { label: 'Pay deposit' },
-          { label: 'Confirm guest capacity' },
-          { label: 'Confirm parking & accessibility' },
-        ],
-      },
-    ],
+    customRoute: 'venues',
+    groups: [],
   },
+  // ── index 1 ─────────────────────────────────────────────────────
   {
     title: 'Bride & Groom',
-    script: 'Preparation',
+    script: 'Attire',
     icon: '💍',
     tabLabel: 'Attire',
-    groups: [
-      {
-        label: 'Attire',
-        items: [
-          { label: 'Choose wedding dress designer' },
-          { label: 'Book first fitting appointment' },
-          { label: 'Complete all dress alterations' },
-          { label: 'Choose groom\'s suit / attire' },
-          { label: 'Pick up final gown' },
-        ],
-      },
-      {
-        label: 'Bridal Party',
-        items: [
-          { label: 'Confirm bridesmaid dresses' },
-          { label: 'Schedule bridesmaid fitting dates' },
-          { label: 'Share day-of schedule with bridal party' },
-          { label: 'Arrange groomsmen attire' },
-        ],
-      },
-    ],
+    customRoute: 'attire',
+    groups: [],
   },
+  // ── index 2 ─────────────────────────────────────────────────────
   {
-    title: 'Wedding Day',
-    script: 'Budget Planner',
+    title: 'Budget',
+    script: 'Planner',
     icon: '💰',
     tabLabel: 'Budget',
-    groups: [
-      {
-        label: 'Budget Setup',
-        items: [
-          { label: 'Set overall wedding budget' },
-          { label: 'Allocate budget per category' },
-          { label: 'Open dedicated wedding account' },
-        ],
-      },
-      {
-        label: 'Tracking',
-        items: [
-          { label: 'Log venue deposit payment' },
-          { label: 'Log photographer payment' },
-          { label: 'Log catering estimate' },
-          { label: 'Log florist payment' },
-          { label: 'Track all remaining vendor deposits' },
-          { label: 'Reconcile final budget vs actual spend' },
-        ],
-      },
-    ],
+    hidden: true,
+    groups: [],
   },
+  // ── index 3 ─────────────────────────────────────────────────────
   {
     title: 'After the',
     script: 'Wedding',
@@ -125,59 +74,25 @@ export const SECTIONS: ChecklistSection[] = [
       },
     ],
   },
+  // ── index 4 ─────────────────────────────────────────────────────
   {
     title: 'Rehearsal',
     script: 'Dinner',
     icon: '🥂',
     tabLabel: 'Rehearsal',
-    groups: [
-      {
-        label: 'Planning',
-        items: [
-          { label: 'Choose rehearsal dinner venue' },
-          { label: 'Set rehearsal date & time' },
-          { label: 'Finalise guest list for rehearsal' },
-          { label: 'Choose food theme / menu' },
-        ],
-      },
-      {
-        label: 'Bookings',
-        items: [
-          { label: 'Make restaurant / venue reservation' },
-          { label: 'Confirm dietary requirements' },
-          { label: 'Arrange transport for wedding party' },
-          { label: 'Pay rehearsal dinner deposit' },
-        ],
-      },
-    ],
+    customRoute: 'rehearsal',
+    groups: [],
   },
+  // ── index 5 ─────────────────────────────────────────────────────
   {
-    title: 'Wedding Day',
-    script: 'Guest List',
+    title: 'Guest',
+    script: 'List',
     icon: '📋',
     tabLabel: 'Guest List',
-    groups: [
-      {
-        label: 'Invitations',
-        items: [
-          { label: 'Finalise guest list numbers' },
-          { label: 'Collect all postal addresses' },
-          { label: 'Design & order invitations' },
-          { label: 'Send save-the-dates' },
-          { label: 'Send formal invitations' },
-        ],
-      },
-      {
-        label: 'RSVPs',
-        items: [
-          { label: 'Set RSVP deadline' },
-          { label: 'Chase outstanding RSVPs' },
-          { label: 'Confirm final headcount with venue' },
-          { label: 'Compile dietary requirements list' },
-        ],
-      },
-    ],
+    customRoute: 'guest-list',
+    groups: [],
   },
+  // ── index 6 ─────────────────────────────────────────────────────
   {
     title: 'Wedding Planning',
     script: 'Checklist',
@@ -230,56 +145,30 @@ export const SECTIONS: ChecklistSection[] = [
           { label: 'Pick up wedding dress' },
           { label: 'Attend rehearsal' },
           { label: 'Pack honeymoon bags' },
-          { label: 'Get a good night\'s sleep' },
+          { label: "Get a good night's sleep" },
         ],
       },
     ],
   },
+  // ── index 7 ─────────────────────────────────────────────────────
   {
     title: 'Wedding Guest',
     script: 'Checklist',
     icon: '👥',
     tabLabel: 'Guests',
-    groups: [
-      {
-        label: 'Tracking',
-        items: [
-          { label: 'All invitation addresses collected' },
-          { label: 'Invitations posted' },
-          { label: 'All RSVPs received' },
-          { label: 'Seating chart finalised' },
-          { label: 'Place cards printed' },
-        ],
-      },
-      {
-        label: 'Post-Wedding',
-        items: [
-          { label: 'Thank-you cards sent to all guests' },
-          { label: 'Guest photo bundle shared' },
-        ],
-      },
-    ],
+    hidden: true,
+    groups: [],
   },
+  // ── index 8 ─────────────────────────────────────────────────────
   {
     title: 'Expense',
     script: 'Tracker',
     icon: '📊',
     tabLabel: 'Expenses',
-    groups: [
-      {
-        label: 'Key Payments',
-        items: [
-          { label: 'Venue deposit paid' },
-          { label: 'Photographer deposit paid' },
-          { label: 'Caterer deposit paid' },
-          { label: 'Florist deposit paid' },
-          { label: 'Music / DJ deposit paid' },
-          { label: 'Dress paid in full' },
-          { label: 'All final balances settled' },
-        ],
-      },
-    ],
+    customRoute: 'expenses',
+    groups: [],
   },
+  // ── index 9 ─────────────────────────────────────────────────────
   {
     title: 'Wedding',
     script: 'To-Do List',
@@ -306,6 +195,7 @@ export const SECTIONS: ChecklistSection[] = [
       },
     ],
   },
+  // ── index 10 ────────────────────────────────────────────────────
   {
     title: 'Preparation',
     script: 'Sketch',
@@ -343,16 +233,16 @@ export interface CustomAddedItem {
 }
 
 export interface SectionConfig {
-  removed: string[]                // default item keys like "g0_i2"
+  removed: string[]
   added: CustomAddedItem[]
 }
 
-export type CustomConfig = Record<string, SectionConfig>  // keyed by "s0", "s1", …
+export type CustomConfig = Record<string, SectionConfig>
 
 // ── Effective item types ─────────────────────────────────────────────────────
 
 export interface EffectiveItem {
-  key: string       // "g0_i2" for defaults, UUID for custom
+  key: string
   label: string
   sub?: string
   isCustom: boolean
@@ -392,12 +282,15 @@ export function getEffectiveGroups(
   })
 }
 
+// Only count checklist sections (no customRoute, no hidden)
 export function sectionProgress(
   si: number,
   state: Record<string, Record<string, boolean>>,
   customConfig: CustomConfig,
 ) {
-  const groups = getEffectiveGroups(SECTIONS[si], si, customConfig)
+  const sec = SECTIONS[si]
+  if (sec.customRoute || sec.hidden) return { total: 0, done: 0, pct: 0 }
+  const groups = getEffectiveGroups(sec, si, customConfig)
   let total = 0, done = 0
   groups.forEach(g =>
     g.items.forEach(item => {
@@ -413,7 +306,8 @@ export function computeProgress(
   customConfig: CustomConfig = {},
 ) {
   let total = 0, done = 0
-  SECTIONS.forEach((_, si) => {
+  SECTIONS.forEach((sec, si) => {
+    if (sec.customRoute || sec.hidden) return
     const sp = sectionProgress(si, state, customConfig)
     total += sp.total
     done += sp.done

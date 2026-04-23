@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { SECTIONS, type CustomConfig, type SectionConfig } from './checklist/checklistData'
 import { coupleDisplay } from '@/lib/coupleDisplay'
 import { OverviewDashboard } from './OverviewDashboard'
@@ -18,6 +18,13 @@ export default async function ManagePage({ params, searchParams }: Props) {
     section !== undefined && /^\d+$/.test(section) && Number(section) < SECTIONS.length
       ? Number(section)
       : undefined
+
+  // If the section index corresponds to a custom route or hidden section, redirect
+  if (activeSection !== undefined) {
+    const sec = SECTIONS[activeSection]
+    if (sec.customRoute) redirect(`/${slug}/manage/${sec.customRoute}`)
+    if (sec.hidden) redirect(`/${slug}/manage`)
+  }
 
   const supabase = await createClient()
 
