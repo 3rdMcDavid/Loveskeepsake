@@ -28,8 +28,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "LoveKeepsake",
-    template: "%s · LoveKeepsake",
+    default: "LovesKeepsake",
+    template: "%s · LovesKeepsake",
   },
   description: "Your wedding planning suite — beautifully kept.",
 };

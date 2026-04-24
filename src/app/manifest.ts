@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'LoveKeepsake',
-    short_name: 'LoveKeepsake',
+    name: 'LovesKeepsake',
+    short_name: 'LovesKeepsake',
     description: 'Your wedding planning suite — beautifully kept.',
     start_url: '/',
     display: 'standalone',
