@@ -32,6 +32,9 @@ export const metadata: Metadata = {
     template: "%s · LovesKeepsake",
   },
   description: "Your wedding planning suite — beautifully kept.",
+  icons: {
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({

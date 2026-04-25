@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -18,8 +19,8 @@ export default function AdminNav() {
   return (
     <header className="bg-white border-b border-stone-200 px-8 py-4">
       <div className="max-w-5xl mx-auto flex items-center justify-between">
-        <Link href="/admin" className="font-serif text-xl text-stone-800">
-          LovesKeepsake
+        <Link href="/admin">
+          <Image src="/logo.png" alt="LovesKeepsake" width={120} height={60} className="h-10 w-auto" priority />
         </Link>
         <button
           onClick={handleSignOut}
