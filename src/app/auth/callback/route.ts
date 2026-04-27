@@ -25,5 +25,12 @@ export async function GET(request: NextRequest) {
     }
   }
 
+  // If the link was for a /[slug]/welcome flow, send them back to that slug's sign-in
+  // so they can request a new link rather than hitting the generic login page
+  const slugMatch = next.match(/^\/([^/]+)\/welcome/)
+  if (slugMatch) {
+    return NextResponse.redirect(`${origin}/${slugMatch[1]}/sign-in?hint=new-link`)
+  }
+
   return NextResponse.redirect(`${origin}/login?error=auth`)
 }

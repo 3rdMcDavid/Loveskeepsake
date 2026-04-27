@@ -6,12 +6,12 @@ import { createClient } from '@/lib/supabase/client'
 
 const CF = "var(--font-cormorant), 'Georgia', serif"
 
-export default function CoupleSignIn({ slug }: { slug: string }) {
+export default function CoupleSignIn({ slug, hint }: { slug: string; hint?: string }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [forgotMode, setForgotMode] = useState(false)
+  const [forgotMode, setForgotMode] = useState(hint === 'new-link')
   const [resetSent, setResetSent] = useState(false)
   const router = useRouter()
 
@@ -69,9 +69,14 @@ export default function CoupleSignIn({ slug }: { slug: string }) {
   if (forgotMode) {
     return (
       <form onSubmit={handleForgotPassword} className="bg-white p-8 shadow-sm space-y-5">
+        {hint === 'new-link' && (
+          <div className="bg-amber-50 border border-amber-200 px-3 py-2 text-sm text-amber-800 text-center">
+            Your invite link has already been used. Enter your email below to get a new one.
+          </div>
+        )}
         <div className="text-center mb-2">
           <p className="text-sm text-stone-500">
-            Enter your email and we&apos;ll send a link to reset your password.
+            Enter your email and we&apos;ll send a link to {hint === 'new-link' ? 'set up your account' : 'reset your password'}.
           </p>
         </div>
         <div>

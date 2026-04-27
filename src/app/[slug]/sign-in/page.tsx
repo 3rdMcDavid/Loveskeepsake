@@ -1,11 +1,15 @@
 import CoupleSignIn from './CoupleSignIn'
 
-type Props = { params: Promise<{ slug: string }> }
+type Props = {
+  params: Promise<{ slug: string }>
+  searchParams: Promise<{ hint?: string }>
+}
 
 const CF = "var(--font-cormorant), 'Georgia', serif"
 
-export default async function CoupleSignInPage({ params }: Props) {
+export default async function CoupleSignInPage({ params, searchParams }: Props) {
   const { slug } = await params
+  const { hint } = await searchParams
   return (
     <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#f5f0eb' }}>
       <div className="w-full max-w-md">
@@ -18,7 +22,7 @@ export default async function CoupleSignInPage({ params }: Props) {
             Sign in to your wedding dashboard
           </p>
         </div>
-        <CoupleSignIn slug={slug} />
+        <CoupleSignIn slug={slug} hint={hint} />
       </div>
     </div>
   )
