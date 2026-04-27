@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createServerClient } from '@supabase/ssr'
 import { NextRequest, NextResponse } from 'next/server'
 import type { EmailOtpType } from '@supabase/supabase-js'
 
@@ -9,28 +9,41 @@ export async function GET(request: NextRequest) {
   const type = searchParams.get('type') as EmailOtpType | null
   const next = searchParams.get('next') ?? '/'
 
-  if (code) {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
-    }
-  }
-
-  if (token_hash && type) {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.verifyOtp({ type, token_hash })
-    if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
-    }
-  }
-
-  // If the link was for a /[slug]/welcome flow, send them back to that slug's sign-in
-  // so they can request a new link rather than hitting the generic login page
   const slugMatch = next.match(/^\/([^/]+)\/welcome/)
-  if (slugMatch) {
-    return NextResponse.redirect(`${origin}/${slugMatch[1]}/sign-in?hint=new-link`)
+  const failUrl = slugMatch
+    ? `${origin}/${slugMatch[1]}/sign-in?hint=new-link`
+    : `${origin}/login?error=auth`
+
+  if (code || (token_hash && type)) {
+    const successResponse = NextResponse.redirect(`${origin}${next}`)
+
+    // Build a client that writes cookies directly onto the redirect response
+    // (not via next/headers, which doesn't propagate to NextResponse.redirect on iOS Safari)
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              successResponse.cookies.set(name, value, options)
+            )
+          },
+        },
+      }
+    )
+
+    if (code) {
+      const { error } = await supabase.auth.exchangeCodeForSession(code)
+      if (!error) return successResponse
+    } else if (token_hash && type) {
+      const { error } = await supabase.auth.verifyOtp({ type, token_hash })
+      if (!error) return successResponse
+    }
   }
 
-  return NextResponse.redirect(`${origin}/login?error=auth`)
+  return NextResponse.redirect(failUrl)
 }
