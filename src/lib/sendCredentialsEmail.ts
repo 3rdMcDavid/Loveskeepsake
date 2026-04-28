@@ -1,8 +1,4 @@
-'use server'
-
 import { Resend } from 'resend'
-
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function sendCredentialsEmail({
   to,
@@ -13,6 +9,7 @@ export async function sendCredentialsEmail({
   loginUrl: string
   password: string
 }) {
+  const resend = new Resend(process.env.RESEND_API_KEY)
   const { error } = await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL ?? 'LovesKeepsake <noreply@loveskeepsake.com>',
     to,
