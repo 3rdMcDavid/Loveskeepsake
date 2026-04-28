@@ -109,6 +109,7 @@ export default async function AdminWeddingPage({ params }: Props) {
               weddingId={wedding.id}
               coupleUserId={wedding.couple_user_id}
               coupleEmail={wedding.couple_email}
+              slug={wedding.slug}
             />
           </div>
         ) : (

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sendCredentialsEmail } from '@/lib/sendCredentialsEmail'
 
 function toSlug(name: string): string {
   return name
@@ -69,4 +70,13 @@ export async function createWedding(
   }
 
   return { status: 'success', weddingId: wedding.id, email: couple_email, password, slug }
+}
+
+export async function sendCredentials(email: string, slug: string, password: string) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
+  await sendCredentialsEmail({
+    to: email,
+    loginUrl: `${siteUrl}/${slug}/sign-in`,
+    password,
+  })
 }

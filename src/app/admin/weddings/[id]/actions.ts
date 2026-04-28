@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { sendCredentialsEmail } from '@/lib/sendCredentialsEmail'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
@@ -72,4 +73,13 @@ export async function resetCredentials(
 
   revalidatePath(`/admin/weddings/${weddingId}`)
   return { status: 'success', password }
+}
+
+export async function sendCredentials(email: string, slug: string, password: string) {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
+  await sendCredentialsEmail({
+    to: email,
+    loginUrl: `${siteUrl}/${slug}/sign-in`,
+    password,
+  })
 }
