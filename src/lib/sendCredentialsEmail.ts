@@ -68,6 +68,52 @@ export async function sendCredentialsEmail({
             <p style="margin:0;font-size:13px;color:#a8937f;line-height:1.6;">
               You can change your password after signing in. If you have any trouble, reply to this email and we&rsquo;ll help you out.
             </p>
+
+            <!-- PWA install guide -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:32px;border-top:1px solid #e7e0d8;">
+              <tr>
+                <td style="padding-top:28px;">
+                  <p style="margin:0 0 4px;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#a8937f;">Pro tip</p>
+                  <p style="margin:0 0 16px;font-size:15px;font-weight:400;color:#3d2e28;">Install the app for the best experience</p>
+                  <p style="margin:0 0 20px;font-size:13px;color:#6b5e57;line-height:1.6;">
+                    Add LovesKeepsake to your home screen so it opens like a native app &mdash; no browser bar, faster access, and a cleaner look. No app store required.
+                  </p>
+
+                  <!-- iPhone -->
+                  <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:16px;background:#f5f0eb;border-radius:4px;">
+                    <tr>
+                      <td style="padding:16px;">
+                        <p style="margin:0 0 10px;font-size:12px;font-weight:bold;letter-spacing:0.05em;color:#3d2e28;">&#63743; iPhone (Safari only)</p>
+                        <p style="margin:0 0 6px;font-size:12px;color:#6b5e57;line-height:1.7;">
+                          1. Open the link above in <strong>Safari</strong> (not Chrome or Firefox).<br/>
+                          2. Tap the <strong>Share</strong> button &mdash; the box with an arrow at the bottom of the screen.<br/>
+                          3. Scroll down and tap <strong>&ldquo;Add to Home Screen.&rdquo;</strong><br/>
+                          4. Tap <strong>Add</strong> in the top-right corner.
+                        </p>
+                        <p style="margin:8px 0 0;font-size:11px;color:#a8937f;line-height:1.5;">
+                          Always open the app from the home screen icon for the best experience.
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <!-- Android -->
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f0eb;border-radius:4px;">
+                    <tr>
+                      <td style="padding:16px;">
+                        <p style="margin:0 0 10px;font-size:12px;font-weight:bold;letter-spacing:0.05em;color:#3d2e28;">&#9654; Android (Chrome)</p>
+                        <p style="margin:0 0 6px;font-size:12px;color:#6b5e57;line-height:1.7;">
+                          1. Open the link above in <strong>Chrome</strong>.<br/>
+                          2. Tap the <strong>three-dot menu</strong> in the top-right corner.<br/>
+                          3. Tap <strong>&ldquo;Add to Home screen&rdquo;</strong> or <strong>&ldquo;Install app&rdquo;</strong> if shown.<br/>
+                          4. Tap <strong>Add</strong> to confirm.
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
           </td>
         </tr>
       </table>
