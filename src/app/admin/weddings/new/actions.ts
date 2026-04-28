@@ -26,50 +26,54 @@ export async function createWedding(
   _prev: CreateWeddingResult | null,
   formData: FormData
 ): Promise<CreateWeddingResult> {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { status: 'error', message: 'Unauthorized' }
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { status: 'error', message: 'Unauthorized' }
 
-  const couple_name  = formData.get('couple_name') as string
-  const couple_email = formData.get('couple_email') as string
+    const couple_name  = formData.get('couple_name') as string
+    const couple_email = formData.get('couple_email') as string
 
-  let slug = toSlug(couple_name)
-  const { count } = await supabase
-    .from('weddings')
-    .select('id', { count: 'exact', head: true })
-    .eq('slug', slug)
-  if (count && count > 0) slug = `${slug}-${Date.now()}`
+    let slug = toSlug(couple_name)
+    const { count } = await supabase
+      .from('weddings')
+      .select('id', { count: 'exact', head: true })
+      .eq('slug', slug)
+    if (count && count > 0) slug = `${slug}-${Date.now()}`
 
-  const password = generatePassword()
-  const admin = createAdminClient()
+    const password = generatePassword()
+    const admin = createAdminClient()
 
-  const { data: newUser, error: userError } = await admin.auth.admin.createUser({
-    email: couple_email,
-    password,
-    email_confirm: true,
-  })
-
-  if (userError) return { status: 'error', message: userError.message }
-
-  const { data: wedding, error } = await supabase
-    .from('weddings')
-    .insert({
-      slug,
-      partner1_name: couple_name,
-      partner2_name: null,
-      wedding_date: null,
-      couple_email,
-      couple_user_id: newUser.user.id,
+    const { data: newUser, error: userError } = await admin.auth.admin.createUser({
+      email: couple_email,
+      password,
+      email_confirm: true,
     })
-    .select('id')
-    .single()
 
-  if (error) {
-    await admin.auth.admin.deleteUser(newUser.user.id)
-    return { status: 'error', message: error.message }
+    if (userError) return { status: 'error', message: userError.message }
+
+    const { data: wedding, error } = await supabase
+      .from('weddings')
+      .insert({
+        slug,
+        partner1_name: couple_name,
+        partner2_name: null,
+        wedding_date: null,
+        couple_email,
+        couple_user_id: newUser.user.id,
+      })
+      .select('id')
+      .single()
+
+    if (error) {
+      await admin.auth.admin.deleteUser(newUser.user.id)
+      return { status: 'error', message: error.message }
+    }
+
+    return { status: 'success', weddingId: wedding.id, email: couple_email, password, slug }
+  } catch (e) {
+    return { status: 'error', message: e instanceof Error ? e.message : 'Unexpected error' }
   }
-
-  return { status: 'success', weddingId: wedding.id, email: couple_email, password, slug }
 }
 
 export async function sendCredentials(email: string, slug: string, password: string) {
