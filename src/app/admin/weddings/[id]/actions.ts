@@ -19,12 +19,25 @@ export async function deleteWedding(weddingId: string) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Unauthorized')
 
+  // Grab the couple's auth user ID before deleting the row
+  const { data: wedding } = await supabase
+    .from('weddings')
+    .select('couple_user_id')
+    .eq('id', weddingId)
+    .single()
+
   const { error } = await supabase
     .from('weddings')
     .delete()
     .eq('id', weddingId)
 
   if (error) throw new Error(error.message)
+
+  // Delete the couple's auth account if one exists
+  if (wedding?.couple_user_id) {
+    const admin = createAdminClient()
+    await admin.auth.admin.deleteUser(wedding.couple_user_id)
+  }
 
   redirect('/admin')
 }
