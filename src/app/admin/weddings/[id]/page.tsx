@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { coupleDisplay } from '@/lib/coupleDisplay'
-import ResendInviteButton from './ResendInviteButton'
+import ResetCredentialsButton from './ResetCredentialsButton'
 import EditWeddingForm from './EditWeddingForm'
 import DeleteWeddingButton from './DeleteWeddingButton'
 import type { Wedding } from '@/types'
@@ -93,27 +93,26 @@ export default async function AdminWeddingPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Invite card */}
+      {/* Credentials card */}
       <div className="bg-white border border-stone-200 rounded-xl p-6">
-        <h2 className="text-xs font-medium text-stone-400 uppercase tracking-wide mb-4">Couple Invite</h2>
-        {wedding.couple_email ? (
-          <div className="flex items-center justify-between">
+        <h2 className="text-xs font-medium text-stone-400 uppercase tracking-wide mb-4">Couple Login</h2>
+        {wedding.couple_email && wedding.couple_user_id ? (
+          <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-sm text-stone-800">{wedding.couple_email}</p>
-              {wedding.couple_user_id ? (
-                <p className="text-xs text-emerald-600 mt-0.5">Activated — couple has signed in</p>
-              ) : (
-                <p className="text-xs text-stone-400 mt-0.5">Invite not yet accepted</p>
-              )}
+              <p className="text-xs text-stone-400 mt-0.5">
+                Login at{' '}
+                <span className="font-mono">/{wedding.slug}/sign-in</span>
+              </p>
             </div>
-            <ResendInviteButton
+            <ResetCredentialsButton
               weddingId={wedding.id}
+              coupleUserId={wedding.couple_user_id}
               coupleEmail={wedding.couple_email}
-              slug={wedding.slug}
             />
           </div>
         ) : (
-          <p className="text-sm text-stone-400">No couple email on file.</p>
+          <p className="text-sm text-stone-400">No couple account on file.</p>
         )}
       </div>
     </div>

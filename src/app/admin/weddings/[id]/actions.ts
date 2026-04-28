@@ -1,8 +1,16 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+
+function generatePassword(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
+  return Array.from({ length: 12 }, () =>
+    chars[Math.floor(Math.random() * chars.length)]
+  ).join('')
+}
 
 export async function deleteWedding(weddingId: string) {
   const supabase = await createClient()
@@ -44,20 +52,24 @@ export async function updateWedding(weddingId: string, formData: FormData) {
   revalidatePath(`/admin/weddings/${weddingId}`)
 }
 
-export async function resendInvite(weddingId: string, coupleEmail: string, slug: string) {
+export type ResetCredentialsResult =
+  | { status: 'success'; password: string }
+  | { status: 'error'; message: string }
+
+export async function resetCredentials(
+  weddingId: string,
+  coupleUserId: string
+): Promise<ResetCredentialsResult> {
   const supabase = await createClient()
-
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) throw new Error('Unauthorized')
+  if (!user) return { status: 'error', message: 'Unauthorized' }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
-  await supabase.auth.signInWithOtp({
-    email: coupleEmail,
-    options: {
-      shouldCreateUser: true,
-      emailRedirectTo: `${siteUrl}/auth/callback?next=/${slug}/welcome`,
-    },
-  })
+  const password = generatePassword()
+  const admin = createAdminClient()
+
+  const { error } = await admin.auth.admin.updateUserById(coupleUserId, { password })
+  if (error) return { status: 'error', message: error.message }
 
   revalidatePath(`/admin/weddings/${weddingId}`)
+  return { status: 'success', password }
 }
