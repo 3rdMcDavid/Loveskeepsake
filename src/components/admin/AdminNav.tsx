@@ -36,6 +36,12 @@ export default function AdminNav() {
             >
               Analytics
             </Link>
+            <Link
+              href="/admin/notebook"
+              className={`text-sm transition-colors ${pathname === '/admin/notebook' ? 'text-stone-800 font-medium' : 'text-stone-400 hover:text-stone-700'}`}
+            >
+              Notebook
+            </Link>
           </nav>
         </div>
         <button
