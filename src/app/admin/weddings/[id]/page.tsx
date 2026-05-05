@@ -112,7 +112,7 @@ export default async function AdminWeddingPage({ params }: Props) {
   return (
     <div className="px-4 py-6 sm:p-8 max-w-2xl">
       {/* Back */}
-      <Link href="/admin" className="text-sm text-stone-400 hover:text-stone-600 transition-colors mb-6 inline-block">
+      <Link href="/admin/weddings" className="text-sm text-stone-400 hover:text-stone-600 transition-colors mb-6 inline-block">
         ← All weddings
       </Link>
 

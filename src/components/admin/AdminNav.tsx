@@ -7,8 +7,8 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 const NAV_LINKS = [
-  { href: '/admin', label: 'Weddings', exact: true },
-  { href: '/admin/analytics', label: 'Analytics', exact: false },
+  { href: '/admin', label: 'Dashboard', exact: true },
+  { href: '/admin/weddings', label: 'Weddings', exact: false },
   { href: '/admin/notebook', label: 'Notebook', exact: false },
 ]
 
