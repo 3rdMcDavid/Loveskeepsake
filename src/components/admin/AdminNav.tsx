@@ -6,6 +6,12 @@ import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
+const NAV_LINKS = [
+  { href: '/admin', label: 'Weddings', exact: true },
+  { href: '/admin/analytics', label: 'Analytics', exact: false },
+  { href: '/admin/notebook', label: 'Notebook', exact: false },
+]
+
 export default function AdminNav() {
   const pathname = usePathname()
   const router = useRouter()
@@ -16,32 +22,28 @@ export default function AdminNav() {
     router.push('/login')
   }
 
+  function isActive(href: string, exact: boolean) {
+    return exact ? pathname === href : pathname.startsWith(href)
+  }
+
   return (
-    <header className="bg-white border-b border-stone-200 px-8 py-4">
-      <div className="max-w-5xl mx-auto flex items-center justify-between">
-        <div className="flex items-center gap-8">
+    <header className="bg-white border-b border-stone-200">
+      {/* Main row: logo + desktop nav + sign out */}
+      <div className="max-w-5xl mx-auto flex items-center justify-between px-4 sm:px-8 py-3 sm:py-4">
+        <div className="flex items-center gap-6 sm:gap-8">
           <Link href="/admin">
-            <Image src="/logo.png" alt="LovesKeepsake" width={120} height={60} className="h-10 w-auto" priority />
+            <Image src="/logo.png" alt="LovesKeepsake" width={120} height={60} className="h-8 sm:h-10 w-auto" priority />
           </Link>
-          <nav className="flex items-center gap-6">
-            <Link
-              href="/admin"
-              className={`text-sm transition-colors ${pathname === '/admin' ? 'text-stone-800 font-medium' : 'text-stone-400 hover:text-stone-700'}`}
-            >
-              Weddings
-            </Link>
-            <Link
-              href="/admin/analytics"
-              className={`text-sm transition-colors ${pathname === '/admin/analytics' ? 'text-stone-800 font-medium' : 'text-stone-400 hover:text-stone-700'}`}
-            >
-              Analytics
-            </Link>
-            <Link
-              href="/admin/notebook"
-              className={`text-sm transition-colors ${pathname === '/admin/notebook' ? 'text-stone-800 font-medium' : 'text-stone-400 hover:text-stone-700'}`}
-            >
-              Notebook
-            </Link>
+          <nav className="hidden sm:flex items-center gap-6">
+            {NAV_LINKS.map(({ href, label, exact }) => (
+              <Link
+                key={href}
+                href={href}
+                className={`text-sm transition-colors ${isActive(href, exact) ? 'text-stone-800 font-medium' : 'text-stone-400 hover:text-stone-700'}`}
+              >
+                {label}
+              </Link>
+            ))}
           </nav>
         </div>
         <button
@@ -51,6 +53,19 @@ export default function AdminNav() {
           Sign out
         </button>
       </div>
+
+      {/* Mobile nav row */}
+      <nav className="sm:hidden flex items-center gap-5 px-4 pb-3 border-t border-stone-100">
+        {NAV_LINKS.map(({ href, label, exact }) => (
+          <Link
+            key={href}
+            href={href}
+            className={`text-sm transition-colors ${isActive(href, exact) ? 'text-stone-800 font-medium' : 'text-stone-400 hover:text-stone-700'}`}
+          >
+            {label}
+          </Link>
+        ))}
+      </nav>
     </header>
   )
 }

@@ -205,13 +205,14 @@ export default function WeddingList({ items }: { items: WeddingWithStats[] }) {
             <button
               key={v}
               onClick={() => setCompletion(v)}
-              className={`px-3 py-1.5 transition-colors whitespace-nowrap ${
+              className={`px-2.5 py-1.5 transition-colors whitespace-nowrap ${
                 completion === v
                   ? 'bg-stone-800 text-white'
                   : 'bg-white text-stone-500 hover:bg-stone-50'
               }`}
             >
-              {v === 'all' ? 'All' : v === 'none' ? 'Not started' : v === 'partial' ? 'In progress' : 'Complete'}
+              <span className="sm:hidden">{v === 'all' ? 'All' : v === 'none' ? 'None' : v === 'partial' ? 'Part' : 'Done'}</span>
+              <span className="hidden sm:inline">{v === 'all' ? 'All' : v === 'none' ? 'Not started' : v === 'partial' ? 'In progress' : 'Complete'}</span>
             </button>
           ))}
         </div>
@@ -222,13 +223,13 @@ export default function WeddingList({ items }: { items: WeddingWithStats[] }) {
             <button
               key={v}
               onClick={() => setTiming(v)}
-              className={`px-3 py-1.5 transition-colors ${
+              className={`px-2.5 py-1.5 transition-colors ${
                 timing === v
                   ? 'bg-stone-800 text-white'
                   : 'bg-white text-stone-500 hover:bg-stone-50'
               }`}
             >
-              {v === 'all' ? 'All dates' : v === 'upcoming' ? 'Upcoming' : 'Past'}
+              {v === 'all' ? 'All' : v === 'upcoming' ? 'Upcoming' : 'Past'}
             </button>
           ))}
         </div>
@@ -313,25 +314,34 @@ export default function WeddingList({ items }: { items: WeddingWithStats[] }) {
                   : 'border-stone-200 hover:border-rose-300'
               }`}
             >
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <h2 className="font-medium text-stone-800 truncate">
                     {coupleDisplay(wedding.partner1_name, wedding.partner2_name, wedding.family_name)}
                   </h2>
-                  <p className="text-sm text-stone-400 mt-0.5">
+                  <p className="text-sm text-stone-400 mt-0.5 truncate">
                     {wedding.wedding_date
                       ? new Date(wedding.wedding_date).toLocaleDateString('en-US', {
                           year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC',
                         })
                       : 'Date not yet set'}
                   </p>
+                  {/* Mobile badges */}
+                  <div className="flex items-center gap-2 mt-1 sm:hidden">
+                    {wedding.keepsake_sent_at && (
+                      <span className="text-xs text-emerald-600">Keepsake sent</span>
+                    )}
+                    {inactive && (
+                      <span className="text-xs text-amber-600">Inactive {INACTIVITY_DAYS}d+</span>
+                    )}
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-6 shrink-0">
-                  {/* Progress bar */}
+                <div className="flex items-center gap-3 sm:gap-6 shrink-0">
+                  {/* Progress */}
                   <div className="text-right">
                     <div className="flex items-center gap-2">
-                      <div className="w-20 h-1.5 bg-stone-100 rounded-full">
+                      <div className="w-14 sm:w-20 h-1.5 bg-stone-100 rounded-full">
                         <div
                           className="h-1.5 rounded-full transition-all"
                           style={{
@@ -351,7 +361,7 @@ export default function WeddingList({ items }: { items: WeddingWithStats[] }) {
                   </div>
 
                   {/* Guest count */}
-                  <div className="text-right w-14">
+                  <div className="text-right w-12 hidden sm:block">
                     <p className="text-sm font-medium text-stone-700 tabular-nums">
                       {guests.total > 0 ? guests.total : '—'}
                     </p>
@@ -360,7 +370,7 @@ export default function WeddingList({ items }: { items: WeddingWithStats[] }) {
                     </p>
                   </div>
 
-                  {/* Slug + keepsake + inactive */}
+                  {/* Slug + keepsake + inactive — desktop only */}
                   <div className="text-right w-36 hidden sm:block">
                     <p className="text-xs text-stone-400 font-mono">/{wedding.slug}</p>
                     {wedding.keepsake_sent_at && (

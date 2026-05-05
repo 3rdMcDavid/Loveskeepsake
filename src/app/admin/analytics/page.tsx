@@ -62,7 +62,7 @@ export default async function AdminAnalyticsPage() {
     .slice(0, 15)
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="px-4 py-6 sm:p-8 max-w-2xl">
       <Link href="/admin" className="text-sm text-stone-400 hover:text-stone-600 transition-colors mb-6 inline-block">
         ← All weddings
       </Link>

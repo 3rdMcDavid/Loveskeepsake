@@ -48,7 +48,7 @@ export default async function AdminDashboard() {
   })
 
   return (
-    <div className="p-8">
+    <div className="px-4 py-6 sm:p-8">
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-2xl font-serif text-stone-800">Weddings</h1>
         <Link

@@ -110,21 +110,21 @@ export default async function AdminWeddingPage({ params }: Props) {
     : null
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="px-4 py-6 sm:p-8 max-w-2xl">
       {/* Back */}
       <Link href="/admin" className="text-sm text-stone-400 hover:text-stone-600 transition-colors mb-6 inline-block">
         ← All weddings
       </Link>
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-8">
-        <div>
+      <div className="flex items-start justify-between gap-4 mb-8 flex-wrap">
+        <div className="min-w-0">
           <h1 className="text-2xl font-serif text-stone-800">
             {coupleDisplay(wedding.partner1_name, wedding.partner2_name, wedding.family_name)}
           </h1>
           <p className="text-stone-400 text-sm mt-1">{formattedDate}</p>
         </div>
-        <div className="flex items-center gap-3 mt-1">
+        <div className="flex items-center gap-3 shrink-0">
           <EditWeddingForm wedding={wedding} />
           <a
             href={`/${wedding.slug}/manage`}

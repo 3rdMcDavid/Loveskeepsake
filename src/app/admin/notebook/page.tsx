@@ -14,7 +14,7 @@ export default async function NotebookPage() {
     .order('created_at', { ascending: false })
 
   return (
-    <div className="p-8 max-w-2xl">
+    <div className="px-4 py-6 sm:p-8 max-w-2xl">
       <div className="mb-8">
         <h1 className="text-2xl font-serif text-stone-800">Notebook</h1>
         <p className="text-sm text-stone-400 mt-1">Venues scouted, vendor notes, things to remember.</p>
