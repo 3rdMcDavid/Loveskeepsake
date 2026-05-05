@@ -4,6 +4,7 @@ import { redirect, notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { ManageNav } from './ManageNav'
 import { coupleDisplay } from '@/lib/coupleDisplay'
+import WelcomeModal from '@/components/portal/WelcomeModal'
 
 export default async function ManageLayout({
   children,
@@ -36,6 +37,11 @@ export default async function ManageLayout({
       .eq('id', wedding.id)
   }
 
+  const planConfig = (wedding as { plan_config?: { hiddenSections?: number[]; mode?: string } | null }).plan_config
+  const hiddenSections = planConfig?.hiddenSections ?? []
+  const coupleNames = coupleDisplay(wedding.partner1_name, wedding.partner2_name, wedding.family_name)
+  const showOnboarding = !(wedding as { onboarding_completed_at?: string | null }).onboarding_completed_at
+
   async function signOut() {
     'use server'
     const { createClient: cc } = await import('@/lib/supabase/server')
@@ -46,12 +52,18 @@ export default async function ManageLayout({
 
   return (
     <div className="min-h-screen bg-stone-50">
+      {showOnboarding && (
+        <WelcomeModal
+          weddingId={wedding.id}
+          slug={slug}
+          coupleNames={coupleNames}
+        />
+      )}
+
       <header className="bg-white border-b border-stone-200 px-6 py-4">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div>
-            <span className="font-serif text-stone-800">
-              {coupleDisplay(wedding.partner1_name, wedding.partner2_name, wedding.family_name)}
-            </span>
+            <span className="font-serif text-stone-800">{coupleNames}</span>
             <span className="ml-2 text-xs text-stone-400">Planning</span>
           </div>
           <form action={signOut}>
@@ -61,7 +73,7 @@ export default async function ManageLayout({
           </form>
         </div>
         <Suspense fallback={<div className="h-8" />}>
-          <ManageNav slug={slug} />
+          <ManageNav slug={slug} hiddenSections={hiddenSections} />
         </Suspense>
       </header>
 

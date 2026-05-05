@@ -26,7 +26,6 @@ export default async function ManagePage({ params, searchParams }: Props) {
     if (sec.hidden) redirect(`/${slug}/manage`)
   }
 
-  // getWeddingBySlug is memoized — the layout already called it, so this is free
   const wedding = await getWeddingBySlug(slug)
   if (!wedding) notFound()
 
@@ -39,6 +38,10 @@ export default async function ManagePage({ params, searchParams }: Props) {
 
   const state = (checklistRow?.state ?? {}) as Record<string, Record<string, boolean>>
   const customConfig = (checklistRow?.custom_config ?? {}) as CustomConfig
+
+  const planConfig = (wedding as { plan_config?: { hiddenSections?: number[]; mode?: 'preset' | 'scratch' } | null }).plan_config
+  const hiddenSections = planConfig?.hiddenSections ?? []
+  const mode = planConfig?.mode ?? 'preset'
 
   const coupleNames = coupleDisplay(wedding.partner1_name, wedding.partner2_name, wedding.family_name)
   const weddingDate = wedding.wedding_date
@@ -60,6 +63,8 @@ export default async function ManagePage({ params, searchParams }: Props) {
         attireData={wedding.attire_data as never}
         rehearsalData={wedding.rehearsal_data as never}
         budgetCeiling={wedding.budget_ceiling}
+        hiddenSections={hiddenSections}
+        mode={mode}
       />
     )
   }
@@ -75,6 +80,7 @@ export default async function ManagePage({ params, searchParams }: Props) {
       si={activeSection}
       initialChecked={initialChecked}
       initialConfig={initialConfig}
+      initialMode={mode}
     />
   )
 }

@@ -17,6 +17,8 @@ export type Wedding = {
   venue_data: { slots?: { name: string }[] } | null
   attire_data: { partner1?: string; partner2?: string } | null
   rehearsal_data: { venueName?: string; date?: string } | null
+  onboarding_completed_at: string | null
+  plan_config: { mode?: 'preset' | 'scratch'; hiddenSections?: number[] } | null
 }
 
 export type Guest = {

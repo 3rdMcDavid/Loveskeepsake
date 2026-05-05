@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { SECTIONS, sectionProgress, computeProgress, type CustomConfig } from './checklist/checklistData'
+import type { PlanConfig } from './checklist/checklistData'
 
 interface VenueData { slots?: { name: string }[] }
 interface AttireData { partner1?: string; partner2?: string }
@@ -17,6 +18,8 @@ interface Props {
   attireData: AttireData | null
   rehearsalData: RehearsalData | null
   budgetCeiling: number | string | null
+  hiddenSections?: number[]
+  mode?: PlanConfig['mode']
 }
 
 const cf = "var(--font-cormorant), 'Georgia', serif"
@@ -32,8 +35,10 @@ export async function OverviewDashboard({
   attireData,
   rehearsalData,
   budgetCeiling: budgetCeilingRaw,
+  hiddenSections = [],
+  mode = 'preset',
 }: Props) {
-  const overall = computeProgress(state, customConfig)
+  const overall = computeProgress(state, customConfig, hiddenSections, mode)
   const supabase = await createClient()
 
   // Fetch remaining data in parallel (wedding fields already passed as props)
@@ -155,7 +160,7 @@ export async function OverviewDashboard({
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
 
         {/* Venues */}
-        <Link href={`/${slug}/manage/venues`} className="group block bg-white p-4 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
+        {!hiddenSections.includes(0) && <Link href={`/${slug}/manage/venues`} className="group block bg-white p-4 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
           <div className="flex items-start justify-between mb-3">
             <span className="text-2xl">🏛️</span>
             <span className="text-xs px-2 py-0.5 rounded-full tracking-wide" style={badgeStyle(venuesFilledCount === 0, venuesFilledCount === 3)}>
@@ -168,10 +173,10 @@ export async function OverviewDashboard({
             <div className="h-0.5 rounded-full" style={{ width: `${Math.round((venuesFilledCount / 3) * 100)}%`, background: '#c4956a' }} />
           </div>
           <p className="text-xs text-stone-400 mt-1.5">{venuesFilledCount === 0 ? 'No venues added' : `${venuesFilledCount} venue${venuesFilledCount !== 1 ? 's' : ''} compared`}</p>
-        </Link>
+        </Link>}
 
         {/* Attire */}
-        <Link href={`/${slug}/manage/attire`} className="group block bg-white p-4 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
+        {!hiddenSections.includes(1) && <Link href={`/${slug}/manage/attire`} className="group block bg-white p-4 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
           <div className="flex items-start justify-between mb-3">
             <span className="text-2xl">💍</span>
             <span className="text-xs px-2 py-0.5 rounded-full tracking-wide" style={badgeStyle(!attireFilled, attireFilled)}>
@@ -184,10 +189,10 @@ export async function OverviewDashboard({
             <div className="h-0.5 rounded-full" style={{ width: attireFilled ? '100%' : '0%', background: '#7a9e7e' }} />
           </div>
           <p className="text-xs text-stone-400 mt-1.5">{attireFilled ? 'Details added' : 'Describe your look'}</p>
-        </Link>
+        </Link>}
 
         {/* Expenses */}
-        <Link href={`/${slug}/manage/expenses`} className="group block bg-white p-4 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
+        {!hiddenSections.includes(8) && <Link href={`/${slug}/manage/expenses`} className="group block bg-white p-4 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
           <div className="flex items-start justify-between mb-3">
             <span className="text-2xl">📊</span>
             <span className="text-xs px-2 py-0.5 rounded-full tracking-wide" style={badgeStyle(expenseTotal === 0)}>
@@ -205,10 +210,10 @@ export async function OverviewDashboard({
           <p className="text-xs text-stone-400 mt-1.5">
             {budgetCeiling > 0 ? `of $${Math.round(budgetCeiling).toLocaleString()} budget` : (expenseItems?.length ?? 0) > 0 ? `${expenseItems?.length} line item${expenseItems?.length !== 1 ? 's' : ''}` : 'No items yet'}
           </p>
-        </Link>
+        </Link>}
 
         {/* Rehearsal */}
-        <Link href={`/${slug}/manage/rehearsal`} className="group block bg-white p-4 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
+        {!hiddenSections.includes(4) && <Link href={`/${slug}/manage/rehearsal`} className="group block bg-white p-4 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
           <div className="flex items-start justify-between mb-3">
             <span className="text-2xl">🥂</span>
             <span className="text-xs px-2 py-0.5 rounded-full tracking-wide" style={badgeStyle(!rehearsalFilled, rehearsalFilled)}>
@@ -221,10 +226,10 @@ export async function OverviewDashboard({
             <div className="h-0.5 rounded-full" style={{ width: rehearsalFilled ? '100%' : '0%', background: '#7a9e7e' }} />
           </div>
           <p className="text-xs text-stone-400 mt-1.5">{rehearsalFilled ? 'Details filled in' : 'Venue, date, menu…'}</p>
-        </Link>
+        </Link>}
 
         {/* Guest List */}
-        <Link href={`/${slug}/manage/guest-list`} className="group block bg-white p-4 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
+        {!hiddenSections.includes(5) && <Link href={`/${slug}/manage/guest-list`} className="group block bg-white p-4 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
           <div className="flex items-start justify-between mb-3">
             <span className="text-2xl">📋</span>
             <span className="text-xs px-2 py-0.5 rounded-full tracking-wide" style={badgeStyle(guestTotal === 0)}>
@@ -242,7 +247,7 @@ export async function OverviewDashboard({
           <p className="text-xs text-stone-400 mt-1.5">
             {guestTotal === 0 ? 'No guests yet' : `${guestConfirmed} of ${guestTotal} confirmed`}
           </p>
-        </Link>
+        </Link>}
 
         {/* Guest Camera */}
         <Link href={`/${slug}/manage/camera`} className="group block bg-white p-4 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
@@ -265,8 +270,8 @@ export async function OverviewDashboard({
       {/* ── Checklist section cards ── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {SECTIONS.map((sec, si) => {
-          if (sec.customRoute || sec.hidden) return null
-          const sp = sectionProgress(si, state, customConfig)
+          if (sec.customRoute || sec.hidden || hiddenSections.includes(si)) return null
+          const sp = sectionProgress(si, state, customConfig, hiddenSections, mode)
           const barColor =
             sp.pct === 0 ? '#d9cfc4' : sp.pct === 100 ? '#7a9e7e' : '#c4956a'
           const badge =

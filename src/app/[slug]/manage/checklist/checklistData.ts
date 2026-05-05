@@ -239,6 +239,11 @@ export interface SectionConfig {
 
 export type CustomConfig = Record<string, SectionConfig>
 
+export interface PlanConfig {
+  mode?: 'preset' | 'scratch'
+  hiddenSections?: number[]
+}
+
 // ── Effective item types ─────────────────────────────────────────────────────
 
 export interface EffectiveItem {
@@ -259,10 +264,14 @@ export function getEffectiveGroups(
   section: ChecklistSection,
   si: number,
   customConfig: CustomConfig,
+  mode: 'preset' | 'scratch' = 'preset',
 ): EffectiveGroup[] {
   const cfg = customConfig[`s${si}`]
-  const removed = new Set(cfg?.removed ?? [])
   const added = cfg?.added ?? []
+  // scratch mode: treat all preset items as removed
+  const removed = mode === 'scratch'
+    ? new Set(section.groups.flatMap((g, gi) => g.items.map((_, ii) => `g${gi}_i${ii}`)))
+    : new Set(cfg?.removed ?? [])
 
   return section.groups.map((g, gi) => {
     const defaults: EffectiveItem[] = g.items
@@ -287,10 +296,12 @@ export function sectionProgress(
   si: number,
   state: Record<string, Record<string, boolean>>,
   customConfig: CustomConfig,
+  hiddenSections: number[] = [],
+  mode: 'preset' | 'scratch' = 'preset',
 ) {
   const sec = SECTIONS[si]
-  if (sec.customRoute || sec.hidden) return { total: 0, done: 0, pct: 0 }
-  const groups = getEffectiveGroups(sec, si, customConfig)
+  if (sec.customRoute || sec.hidden || hiddenSections.includes(si)) return { total: 0, done: 0, pct: 0 }
+  const groups = getEffectiveGroups(sec, si, customConfig, mode)
   let total = 0, done = 0
   groups.forEach(g =>
     g.items.forEach(item => {
@@ -304,11 +315,13 @@ export function sectionProgress(
 export function computeProgress(
   state: Record<string, Record<string, boolean>>,
   customConfig: CustomConfig = {},
+  hiddenSections: number[] = [],
+  mode: 'preset' | 'scratch' = 'preset',
 ) {
   let total = 0, done = 0
   SECTIONS.forEach((sec, si) => {
-    if (sec.customRoute || sec.hidden) return
-    const sp = sectionProgress(si, state, customConfig)
+    if (sec.customRoute || sec.hidden || hiddenSections.includes(si)) return
+    const sp = sectionProgress(si, state, customConfig, hiddenSections, mode)
     total += sp.total
     done += sp.done
   })

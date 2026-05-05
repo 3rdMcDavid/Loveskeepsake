@@ -4,13 +4,18 @@ import { useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { SECTIONS } from './checklist/checklistData'
 
-export function ManageNav({ slug }: { slug: string }) {
+interface Props {
+  slug: string
+  hiddenSections: number[]
+}
+
+export function ManageNav({ slug, hiddenSections }: Props) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const section = searchParams.get('section')
 
   const isSettings = pathname === `/${slug}/manage/settings`
-  const isCamera = pathname === `/${slug}/manage/camera`
+  const isCamera   = pathname === `/${slug}/manage/camera`
 
   const customRouteActive = SECTIONS.find(
     s => s.customRoute && pathname === `/${slug}/manage/${s.customRoute}`,
@@ -42,6 +47,7 @@ export function ManageNav({ slug }: { slug: string }) {
 
       {SECTIONS.map((sec, i) => {
         if (sec.hidden) return null
+        if (hiddenSections.includes(i)) return null
 
         if (sec.customRoute) {
           const href = `/${slug}/manage/${sec.customRoute}`

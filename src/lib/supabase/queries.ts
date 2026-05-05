@@ -12,7 +12,7 @@ export const getWeddingBySlug = cache(async (slug: string) => {
   const { data } = await supabase
     .from('weddings')
     .select(
-      'id, slug, family_name, partner1_name, partner2_name, couple_email, couple_user_id, wedding_date, venue_data, attire_data, rehearsal_data, budget_ceiling'
+      'id, slug, family_name, partner1_name, partner2_name, couple_email, couple_user_id, wedding_date, venue_data, attire_data, rehearsal_data, budget_ceiling, onboarding_completed_at, plan_config'
     )
     .eq('slug', slug)
     .single()

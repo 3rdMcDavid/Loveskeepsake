@@ -23,11 +23,12 @@ interface Props {
   si: number
   initialChecked: Record<string, boolean>
   initialConfig: SectionConfig
+  initialMode?: 'preset' | 'scratch'
 }
 
 const CF = "var(--font-cormorant), 'Georgia', serif"
 
-export function SectionView({ weddingId, slug, si, initialChecked, initialConfig }: Props) {
+export function SectionView({ weddingId, slug, si, initialChecked, initialConfig, initialMode = 'preset' }: Props) {
   const sec = SECTIONS[si]
 
   const [checked, setChecked] = useState<Record<string, boolean>>(initialChecked)
@@ -42,13 +43,13 @@ export function SectionView({ weddingId, slug, si, initialChecked, initialConfig
   )
 
   const effectiveGroups = useMemo(
-    () => getEffectiveGroups(sec, si, customConfigForSection),
-    [sec, si, customConfigForSection],
+    () => getEffectiveGroups(sec, si, customConfigForSection, initialMode),
+    [sec, si, customConfigForSection, initialMode],
   )
 
   const sp = useMemo(
-    () => sectionProgress(si, { [`s${si}`]: checked }, customConfigForSection),
-    [si, checked, customConfigForSection],
+    () => sectionProgress(si, { [`s${si}`]: checked }, customConfigForSection, [], initialMode),
+    [si, checked, customConfigForSection, initialMode],
   )
 
   function toggleItem(key: string) {
@@ -119,8 +120,8 @@ export function SectionView({ weddingId, slug, si, initialChecked, initialConfig
       ? 'bg-emerald-50 text-emerald-600'
       : 'bg-amber-50 text-amber-700'
 
-  const hasDefaultsLeft = localConfig.removed.length <
-    sec.groups.reduce((a, g) => a + g.items.length, 0)
+  const hasDefaultsLeft = initialMode !== 'scratch' &&
+    localConfig.removed.length < sec.groups.reduce((a, g) => a + g.items.length, 0)
 
   return (
     <div>
