@@ -14,15 +14,16 @@ export function ManageNav({ slug, hiddenSections }: Props) {
   const pathname = usePathname()
   const section = searchParams.get('section')
 
-  const isSettings = pathname === `/${slug}/manage/settings`
-  const isCamera   = pathname === `/${slug}/manage/camera`
+  const isSettings  = pathname === `/${slug}/manage/settings`
+  const isCustomize = pathname === `/${slug}/manage/customize`
+  const isCamera    = pathname === `/${slug}/manage/camera`
 
   const customRouteActive = SECTIONS.find(
     s => s.customRoute && pathname === `/${slug}/manage/${s.customRoute}`,
   )?.customRoute ?? null
 
   const isDashboard =
-    section === null && !isSettings && !isCamera && customRouteActive === null
+    section === null && !isSettings && !isCustomize && !isCamera && customRouteActive === null
 
   const linkCls = (active: boolean) =>
     `px-3 py-1.5 rounded-md text-sm whitespace-nowrap transition-colors flex items-center gap-1.5 ${
@@ -43,6 +44,11 @@ export function ManageNav({ slug, hiddenSections }: Props) {
       <Link href={`/${slug}/manage/settings`} className={linkCls(isSettings)}>
         <span className="text-xs">⚙️</span>
         Details
+      </Link>
+
+      <Link href={`/${slug}/manage/customize`} className={linkCls(isCustomize)}>
+        <span className="text-xs">🎨</span>
+        Customize
       </Link>
 
       {SECTIONS.map((sec, i) => {
