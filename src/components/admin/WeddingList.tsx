@@ -10,6 +10,7 @@ export type WeddingWithStats = {
   wedding: Wedding
   progress: { pct: number; done: number; total: number }
   guests: { total: number; confirmed: number }
+  lastActivity: string | null
 }
 
 type SortKey =
@@ -23,6 +24,9 @@ type SortKey =
 
 type CompletionFilter = 'all' | 'none' | 'partial' | 'complete'
 type TimingFilter = 'all' | 'upcoming' | 'past'
+type ActivityFilter = 'all' | 'inactive'
+
+const INACTIVITY_DAYS = 14
 
 const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 const todayStr = new Date().toISOString().slice(0, 10)
@@ -36,6 +40,7 @@ export default function WeddingList({ items }: { items: WeddingWithStats[] }) {
   const [timing, setTiming]         = useState<TimingFilter>('all')
   const [months, setMonths]         = useState<Set<number>>(new Set())
   const [keepsakeOnly, setKeepsake] = useState(false)
+  const [activityFilter, setActivity] = useState<ActivityFilter>('all')
   const [spinning, setSpinning]     = useState(false)
 
   // Only show month pills for months that actually have weddings
@@ -61,15 +66,25 @@ export default function WeddingList({ items }: { items: WeddingWithStats[] }) {
     setTimeout(() => setSpinning(false), 700)
   }
 
+  function isInactive(item: WeddingWithStats): boolean {
+    const { wedding, lastActivity } = item
+    if (!wedding.couple_user_id) return false
+    if (wedding.wedding_date && wedding.wedding_date < todayStr) return false
+    if (!lastActivity) return true
+    const daysSince = (Date.now() - new Date(lastActivity).getTime()) / 86_400_000
+    return daysSince > INACTIVITY_DAYS
+  }
+
   function clearFilters() {
     setSearch('')
     setCompletion('all')
     setTiming('all')
     setMonths(new Set())
     setKeepsake(false)
+    setActivity('all')
   }
 
-  const hasActiveFilters = !!(search || completion !== 'all' || timing !== 'all' || months.size > 0 || keepsakeOnly)
+  const hasActiveFilters = !!(search || completion !== 'all' || timing !== 'all' || months.size > 0 || keepsakeOnly || activityFilter !== 'all')
 
   const filtered = useMemo(() => {
     let result = [...items]
@@ -111,6 +126,10 @@ export default function WeddingList({ items }: { items: WeddingWithStats[] }) {
       result = result.filter(({ wedding }) => !!wedding.keepsake_sent_at)
     }
 
+    if (activityFilter === 'inactive') {
+      result = result.filter(item => isInactive(item))
+    }
+
     result.sort((a, b) => {
       switch (sort) {
         case 'pct_desc':   return b.progress.pct - a.progress.pct
@@ -133,7 +152,7 @@ export default function WeddingList({ items }: { items: WeddingWithStats[] }) {
     })
 
     return result
-  }, [items, search, sort, completion, timing, months, keepsakeOnly])
+  }, [items, search, sort, completion, timing, months, keepsakeOnly, activityFilter])
 
   return (
     <div>
@@ -241,6 +260,18 @@ export default function WeddingList({ items }: { items: WeddingWithStats[] }) {
           Keepsake sent ✓
         </button>
 
+        {/* Inactive */}
+        <button
+          onClick={() => setActivity(v => v === 'inactive' ? 'all' : 'inactive')}
+          className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
+            activityFilter === 'inactive'
+              ? 'bg-amber-500 text-white border-amber-500'
+              : 'bg-white text-stone-500 border-stone-200 hover:bg-stone-50'
+          }`}
+        >
+          Inactive {INACTIVITY_DAYS}d+
+        </button>
+
         {/* Clear */}
         {hasActiveFilters && (
           <button
@@ -269,11 +300,18 @@ export default function WeddingList({ items }: { items: WeddingWithStats[] }) {
         </div>
       ) : (
         <div className="grid gap-4">
-          {filtered.map(({ wedding, progress, guests }) => (
+          {filtered.map((item) => {
+            const { wedding, progress, guests } = item
+            const inactive = isInactive(item)
+            return (
             <Link
               key={wedding.id}
               href={`/admin/weddings/${wedding.id}`}
-              className="block p-5 bg-white border border-stone-200 rounded-xl hover:border-rose-300 hover:shadow-sm transition-all"
+              className={`block p-5 bg-white border rounded-xl hover:shadow-sm transition-all ${
+                inactive
+                  ? 'border-amber-300 hover:border-amber-400'
+                  : 'border-stone-200 hover:border-rose-300'
+              }`}
             >
               <div className="flex items-center justify-between gap-4">
                 <div className="flex-1 min-w-0">
@@ -322,17 +360,21 @@ export default function WeddingList({ items }: { items: WeddingWithStats[] }) {
                     </p>
                   </div>
 
-                  {/* Slug + keepsake */}
+                  {/* Slug + keepsake + inactive */}
                   <div className="text-right w-36 hidden sm:block">
                     <p className="text-xs text-stone-400 font-mono">/{wedding.slug}</p>
                     {wedding.keepsake_sent_at && (
                       <span className="text-xs text-emerald-600 mt-1 block">Keepsake sent</span>
                     )}
+                    {inactive && (
+                      <span className="text-xs text-amber-600 mt-1 block">Inactive {INACTIVITY_DAYS}d+</span>
+                    )}
                   </div>
                 </div>
               </div>
             </Link>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>

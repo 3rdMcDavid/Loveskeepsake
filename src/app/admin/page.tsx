@@ -18,12 +18,12 @@ export default async function AdminDashboard() {
 
   const weddingIds = (weddings ?? []).map(w => w.id)
 
-  let checklistByWedding: Record<string, { state: unknown; custom_config: unknown }> = {}
+  let checklistByWedding: Record<string, { state: unknown; custom_config: unknown; updated_at: string | null }> = {}
   let guestsByWedding: Record<string, { total: number; confirmed: number }> = {}
 
   if (weddingIds.length > 0) {
     const [{ data: csData }, { data: gData }] = await Promise.all([
-      supabase.from('checklist_states').select('wedding_id, state, custom_config').in('wedding_id', weddingIds),
+      supabase.from('checklist_states').select('wedding_id, state, custom_config, updated_at').in('wedding_id', weddingIds),
       supabase.from('guest_list').select('wedding_id, rsvp_confirmed').in('wedding_id', weddingIds),
     ])
     checklistByWedding = Object.fromEntries((csData ?? []).map(cs => [cs.wedding_id, cs]))
@@ -43,6 +43,7 @@ export default async function AdminDashboard() {
         (cs?.custom_config ?? {}) as CustomConfig,
       ),
       guests: guestsByWedding[wedding.id] ?? { total: 0, confirmed: 0 },
+      lastActivity: cs?.updated_at ?? null,
     }
   })
 

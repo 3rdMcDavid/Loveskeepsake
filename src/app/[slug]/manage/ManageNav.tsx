@@ -2,6 +2,7 @@
 
 import { useSearchParams, usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { useRef, useEffect } from 'react'
 import { SECTIONS } from './checklist/checklistData'
 
 interface Props {
@@ -13,17 +14,31 @@ export function ManageNav({ slug, hiddenSections }: Props) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const section = searchParams.get('section')
+  const navRef = useRef<HTMLElement>(null)
 
   const isSettings  = pathname === `/${slug}/manage/settings`
   const isCustomize = pathname === `/${slug}/manage/customize`
   const isCamera    = pathname === `/${slug}/manage/camera`
+  const isExport    = pathname === `/${slug}/manage/export`
 
   const customRouteActive = SECTIONS.find(
     s => s.customRoute && pathname === `/${slug}/manage/${s.customRoute}`,
   )?.customRoute ?? null
 
   const isDashboard =
-    section === null && !isSettings && !isCustomize && !isCamera && customRouteActive === null
+    section === null && !isSettings && !isCustomize && !isCamera && !isExport && customRouteActive === null
+
+  useEffect(() => {
+    const nav = navRef.current
+    if (!nav) return
+    const active = nav.querySelector<HTMLElement>('[data-active="true"]')
+    if (!active) return
+    const navLeft = nav.getBoundingClientRect().left
+    const elLeft  = active.getBoundingClientRect().left
+    const elRight = active.getBoundingClientRect().right
+    const center  = elLeft + (elRight - elLeft) / 2 - navLeft
+    nav.scrollTo({ left: center - nav.clientWidth / 2 + nav.scrollLeft, behavior: 'instant' })
+  }, [pathname, section])
 
   const linkCls = (active: boolean) =>
     `px-3 py-1.5 rounded-md text-sm whitespace-nowrap transition-colors flex items-center gap-1.5 ${
@@ -33,20 +48,20 @@ export function ManageNav({ slug, hiddenSections }: Props) {
     }`
 
   return (
-    <nav className="max-w-4xl mx-auto mt-3 flex gap-1 overflow-x-auto pb-0.5">
-      <Link href={`/${slug}/manage`} className={linkCls(isDashboard)}>
+    <nav ref={navRef} className="max-w-4xl mx-auto mt-3 flex gap-1 overflow-x-auto pb-0.5">
+      <Link href={`/${slug}/manage`} data-active={isDashboard} className={linkCls(isDashboard)}>
         <span className="text-xs">📊</span>
         Dashboard
       </Link>
 
       <span className="flex-shrink-0 w-px bg-stone-200 mx-1 self-stretch" />
 
-      <Link href={`/${slug}/manage/settings`} className={linkCls(isSettings)}>
+      <Link href={`/${slug}/manage/settings`} data-active={isSettings} className={linkCls(isSettings)}>
         <span className="text-xs">⚙️</span>
         Details
       </Link>
 
-      <Link href={`/${slug}/manage/customize`} className={linkCls(isCustomize)}>
+      <Link href={`/${slug}/manage/customize`} data-active={isCustomize} className={linkCls(isCustomize)}>
         <span className="text-xs">🎨</span>
         Customize
       </Link>
@@ -57,19 +72,22 @@ export function ManageNav({ slug, hiddenSections }: Props) {
 
         if (sec.customRoute) {
           const href = `/${slug}/manage/${sec.customRoute}`
+          const active = customRouteActive === sec.customRoute
           return (
-            <Link key={i} href={href} className={linkCls(customRouteActive === sec.customRoute)}>
+            <Link key={i} href={href} data-active={active} className={linkCls(active)}>
               <span className="text-xs">{sec.icon}</span>
               {sec.tabLabel}
             </Link>
           )
         }
 
+        const active = section === String(i)
         return (
           <Link
             key={i}
             href={`/${slug}/manage?section=${i}`}
-            className={linkCls(section === String(i))}
+            data-active={active}
+            className={linkCls(active)}
           >
             <span className="text-xs">{sec.icon}</span>
             {sec.tabLabel}
@@ -79,14 +97,19 @@ export function ManageNav({ slug, hiddenSections }: Props) {
 
       <span className="flex-shrink-0 w-px bg-stone-200 mx-1 self-stretch" />
 
-      <Link href={`/${slug}/manage/camera`} className={linkCls(isCamera)}>
+      <Link href={`/${slug}/manage/camera`} data-active={isCamera} className={linkCls(isCamera)}>
         <span className="text-xs">📷</span>
         Camera
       </Link>
 
-      <Link href={`/${slug}/seating`} className={linkCls(false)}>
+      <Link href={`/${slug}/seating`} data-active={false} className={linkCls(false)}>
         <span className="text-xs">🪑</span>
         Seating
+      </Link>
+
+      <Link href={`/${slug}/manage/export`} data-active={isExport} className={linkCls(isExport)}>
+        <span className="text-xs">🖨️</span>
+        Export
       </Link>
     </nav>
   )

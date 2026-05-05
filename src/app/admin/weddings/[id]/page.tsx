@@ -8,6 +8,7 @@ import DeleteWeddingButton from './DeleteWeddingButton'
 import type { Wedding } from '@/types'
 import { SECTIONS, sectionProgress, computeProgress, type CustomConfig } from '@/app/[slug]/manage/checklist/checklistData'
 import RefreshButton from '@/components/admin/RefreshButton'
+import { PhotoGrid } from '@/components/admin/PhotoGrid'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -22,6 +23,7 @@ export default async function AdminWeddingPage({ params }: Props) {
     { data: guestRows },
     { data: cameras },
     { data: seatingPlan },
+    { data: photoRows },
   ] = await Promise.all([
     supabase.from('weddings').select('*').eq('id', id).single<Wedding>(),
     supabase.from('checklist_states').select('state, custom_config, updated_at').eq('wedding_id', id).maybeSingle(),
@@ -29,6 +31,7 @@ export default async function AdminWeddingPage({ params }: Props) {
     supabase.from('guest_list').select('rsvp_confirmed').eq('wedding_id', id),
     supabase.from('guest_cameras').select('shots_used').eq('wedding_id', id),
     supabase.from('seating_plans').select('id').eq('wedding_id', id).maybeSingle(),
+    supabase.from('guest_photos').select('id, storage_path, device_id, uploaded_at').eq('wedding_id', id).order('uploaded_at', { ascending: false }),
   ])
 
   if (!wedding) notFound()
@@ -49,6 +52,27 @@ export default async function AdminWeddingPage({ params }: Props) {
         }),
         seatingStats,
       )
+    }
+  }
+
+  // Photo signed URLs
+  const photos: { id: string; url: string; deviceId: string; uploadedAt: string }[] = []
+  if (photoRows && photoRows.length > 0) {
+    const paths = photoRows.map(p => p.storage_path as string)
+    const { data: signedData } = await supabase.storage.from('guest-photos').createSignedUrls(paths, 3600)
+    if (signedData) {
+      for (let i = 0; i < photoRows.length; i++) {
+        const row = photoRows[i]
+        const signed = signedData[i]
+        if (signed?.signedUrl) {
+          photos.push({
+            id: row.id as string,
+            url: signed.signedUrl,
+            deviceId: row.device_id as string,
+            uploadedAt: row.uploaded_at as string,
+          })
+        }
+      }
     }
   }
 
@@ -256,6 +280,12 @@ export default async function AdminWeddingPage({ params }: Props) {
             </span>
           </div>
         </div>
+      </div>
+
+      {/* ── Guest Photos ── */}
+      <div className="bg-white border border-stone-200 rounded-xl p-6 mb-6">
+        <h2 className="text-xs font-medium text-stone-400 uppercase tracking-wide mb-4">Guest Photos</h2>
+        <PhotoGrid photos={photos} />
       </div>
 
       {/* Danger zone */}
