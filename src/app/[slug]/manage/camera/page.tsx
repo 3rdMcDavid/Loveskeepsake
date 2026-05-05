@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import { coupleDisplay } from '@/lib/coupleDisplay'
 import { QRDownload } from './QRDownload'
+import { PhotoReveal } from './PhotoReveal'
 import type { Metadata } from 'next'
 
 type Props = { params: Promise<{ slug: string }> }
@@ -22,7 +23,10 @@ export default async function CameraPage({ params }: Props) {
 
   if (!wedding) notFound()
 
-  const [{ data: cameras }, { data: recentPhotos }] = await Promise.all([
+  const todayStr = new Date().toISOString().slice(0, 10)
+  const isUnlocked = !!(wedding.wedding_date && wedding.wedding_date < todayStr)
+
+  const [{ data: cameras }, { data: recentPhotos }, { data: photoRows }] = await Promise.all([
     supabase
       .from('guest_cameras')
       .select('shots_used')
@@ -33,6 +37,13 @@ export default async function CameraPage({ params }: Props) {
       .eq('wedding_id', wedding.id)
       .order('uploaded_at', { ascending: false })
       .limit(1),
+    isUnlocked
+      ? supabase
+          .from('guest_photos')
+          .select('id, storage_path, device_id, uploaded_at')
+          .eq('wedding_id', wedding.id)
+          .order('uploaded_at', { ascending: false })
+      : Promise.resolve({ data: [] }),
   ])
 
   const totalPhotos = cameras?.reduce((s, c) => s + (c.shots_used ?? 0), 0) ?? 0
@@ -40,16 +51,40 @@ export default async function CameraPage({ params }: Props) {
   const avgPhotos = uniqueDevices > 0 ? Math.round(totalPhotos / uniqueDevices) : 0
   const lastUpload = recentPhotos?.[0]?.uploaded_at ?? null
 
+  // Generate signed URLs for revealed photos
+  const photos: { id: string; url: string; deviceId: string; uploadedAt: string }[] = []
+  if (isUnlocked && photoRows && photoRows.length > 0) {
+    const paths = photoRows.map(p => p.storage_path as string)
+    const { data: signedData } = await supabase.storage.from('guest-photos').createSignedUrls(paths, 3600)
+    if (signedData) {
+      for (let i = 0; i < photoRows.length; i++) {
+        const row = photoRows[i]
+        const signed = signedData[i]
+        if (signed?.signedUrl) {
+          photos.push({
+            id: row.id as string,
+            url: signed.signedUrl,
+            deviceId: row.device_id as string,
+            uploadedAt: row.uploaded_at as string,
+          })
+        }
+      }
+    }
+  }
+
   const coupleName = coupleDisplay(
     wedding.partner1_name,
     wedding.partner2_name,
     wedding.family_name,
   )
 
-  const unlockDate = wedding.wedding_date
-    ? new Date(
-        new Date(wedding.wedding_date).getTime() + 7 * 24 * 60 * 60 * 1000,
-      ).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  // The day after the wedding date
+  const unlockDateLabel = wedding.wedding_date
+    ? (() => {
+        const d = new Date(wedding.wedding_date + 'T00:00:00Z')
+        d.setUTCDate(d.getUTCDate() + 1)
+        return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
+      })()
     : null
 
   const stats = [
@@ -117,47 +152,13 @@ export default async function CameraPage({ params }: Props) {
       {/* QR code panel */}
       <QRDownload slug={slug} coupleName={coupleName} />
 
-      {/* Gallery teaser */}
-      <div className="bg-white rounded-xl border border-stone-200 p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h2
-            className="text-lg font-light text-stone-800"
-            style={{ fontFamily: CF }}
-          >
-            Photo Gallery
-          </h2>
-          {unlockDate && (
-            <span className="text-xs text-stone-400 bg-stone-50 px-3 py-1 rounded-full border border-stone-200">
-              Unlocks {unlockDate}
-            </span>
-          )}
-        </div>
-
-        {/* Blurred placeholder grid */}
-        <div className="grid grid-cols-4 sm:grid-cols-6 gap-1.5 mb-5">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div
-              key={i}
-              className="aspect-square rounded-lg"
-              style={{
-                background:
-                  i % 3 === 0 ? '#f5f0eb' : i % 3 === 1 ? '#ede7df' : '#d9cfc4',
-              }}
-            />
-          ))}
-        </div>
-
-        <div className="text-center">
-          <p className="text-sm text-stone-500">
-            {totalPhotos > 0
-              ? `${totalPhotos} photo${totalPhotos !== 1 ? 's' : ''} captured so far`
-              : 'No photos yet — share the QR code to get started'}
-          </p>
-          <p className="text-xs text-stone-400 mt-1">
-            Photos will be viewable 7 days after your wedding
-          </p>
-        </div>
-      </div>
+      {/* Photo gallery reveal */}
+      <PhotoReveal
+        isUnlocked={isUnlocked}
+        photos={photos}
+        totalPhotos={totalPhotos}
+        unlockDateLabel={unlockDateLabel}
+      />
     </div>
   )
 }
