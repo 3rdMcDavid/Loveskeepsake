@@ -13,6 +13,10 @@ export type Wedding = {
   couple_user_id: string | null
   created_at: string
   keepsake_sent_at: string | null
+  budget_ceiling: number | null
+  venue_data: { slots?: { name: string }[] } | null
+  attire_data: { partner1?: string; partner2?: string } | null
+  rehearsal_data: { venueName?: string; date?: string } | null
 }
 
 export type Guest = {
