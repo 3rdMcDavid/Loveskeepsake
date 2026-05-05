@@ -7,6 +7,7 @@ import EditWeddingForm from './EditWeddingForm'
 import DeleteWeddingButton from './DeleteWeddingButton'
 import type { Wedding } from '@/types'
 import { SECTIONS, sectionProgress, computeProgress, type CustomConfig } from '@/app/[slug]/manage/checklist/checklistData'
+import RefreshButton from '@/components/admin/RefreshButton'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -142,9 +143,12 @@ export default async function AdminWeddingPage({ params }: Props) {
       <div className="bg-white border border-stone-200 rounded-xl p-6 mb-6 space-y-5">
         <div className="flex items-center justify-between">
           <h2 className="text-xs font-medium text-stone-400 uppercase tracking-wide">Couple Progress</h2>
-          {lastUpdated && (
-            <span className="text-xs text-stone-400">Last active {lastUpdated}</span>
-          )}
+          <div className="flex items-center gap-3">
+            {lastUpdated && (
+              <span className="text-xs text-stone-400">Last active {lastUpdated}</span>
+            )}
+            <RefreshButton />
+          </div>
         </div>
 
         {/* Overall progress */}
